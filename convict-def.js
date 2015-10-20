@@ -11,7 +11,7 @@ var conf = convict({
     backend: {
         doc: "backend url",
         format: "url",
-        default: "",
+        default: "http://127.0.0.1:5000",
         env: "BACKEND"
     },
 });

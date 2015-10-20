@@ -9,7 +9,7 @@ var rename = require('gulp-rename');
 
 gulp.task('template-compile', function () {
     var config = require('./convict-def.js');
-    gulp.src('js/config.js.tmpl').pipe(data(config.getProperties())).pipe(template()).pipe(rename(function (path) {
+    gulp.src('js/config.js.tpl').pipe(data(config.getProperties())).pipe(template()).pipe(rename(function (path) {
         path.extname = '';
     })).pipe(gulp.dest('js/'));
 });
