@@ -23,7 +23,7 @@ module.exports = {
             'sweetalert': resolvePath('node_modules/sweetalert/dist/'),
             'toastr': resolvePath('node_modules/toastr/build/'),
             'page': resolvePath('node_modules/page/'),
-            'semantic-ui': resolvePath('semantic/dist'),
+            'semantic-ui': resolvePath('vendors/semantic/dist'),
 
             'config$': resolvePath('js/config.js'),
             'stores': resolvePath('js/stores'),
