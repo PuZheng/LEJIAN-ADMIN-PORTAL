@@ -59,7 +59,6 @@
     "riotjs": "^1.0.4",
     "riotjs-loader": "^1.2.0",
     "run-sequence": "^1.1.4",
-    "semantic-ui": "^2.1.4",
     "style-loader": "^0.13.0",
     "superagent": "^1.4.0",
     "superagent-no-cache": "^0.1.0",
@@ -69,5 +68,14 @@
     "webpack": "^1.12.2",
     "webpack-dev-server": "^1.12.1",
     "yamljs": "^0.2.4"
+  },
+  "devDependencies": {
+    "chai": "^3.3.0",
+    "chai-jquery": "^2.0.0",
+    "gulp-mocha-phantomjs": "^0.10.1",
+    "inject-loader": "^2.0.1",
+    "mocha": "^2.3.3",
+    "mocha-loader": "^0.7.1",
+    "node-phantom": "^0.2.5"
   }
 }
