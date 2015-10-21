@@ -18,6 +18,48 @@ gulp.task('watch', function () {
     gulp.watch(['js/config.js.tpl', 'convict-def.js'], ['template-compile']);
 });
 
+gulp.task('webpack:build-dev', function(callback) {
+    // modify some webpack config options
+    var myDevConfig = Object.create(webpackConfig);
+    myDevConfig.devtool = 'source-map';
+    myDevConfig.debug = true;
+
+    // create a single instance of the compiler to allow caching
+    var devCompiler = webpack(myDevConfig);
+	// run webpack
+	devCompiler.run(function(err, stats) {
+		if(err) throw new gutil.PluginError('webpack:build-dev', err);
+		gutil.log('[webpack:build-dev]', stats.toString({
+			colors: true
+		}));
+		callback();
+	});
+});
+
+gulp.task('webpack:build-test', function(callback) {
+    // modify some webpack config options
+    var myDevConfig = Object.create(webpackConfig);
+    myDevConfig.devtool = 'source-map';
+    myDevConfig.debug = true;
+    myDevConfig.entry = ['./test/js/test-auth.js'];
+    myDevConfig.output = {
+        path: __dirname + '/test/js/bundle/',
+        filename: '[name].js',
+    };
+    myDevConfig.plugins.pop();
+
+    // create a single instance of the compiler to allow caching
+    var devCompiler = webpack(myDevConfig);
+	// run webpack
+	devCompiler.run(function(err, stats) {
+		if(err) throw new gutil.PluginError('webpack:build-dev', err);
+		gutil.log('[webpack:build-dev]', stats.toString({
+			colors: true
+		}));
+		callback();
+	});
+});
+
 gulp.task('webpack-dev-server', function(callback) {
     // Start a webpack-dev-server
     var config = Object.create(require('./webpack.hot.config.js'));
@@ -43,3 +85,10 @@ gulp.task('webpack-dev-server', function(callback) {
 });
 
 gulp.task('default', ['template-compile', 'watch', 'webpack-dev-server']);
+
+var mochaPhantomJS = require('gulp-mocha-phantomjs');
+
+gulp.task('test', function () {
+    return gulp.src('test/test-auth.html')
+    .pipe(mochaPhantomJS());
+});

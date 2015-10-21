@@ -10,8 +10,6 @@ var swal = require('sweetalert/sweetalert.min.js');
 require('sweetalert/sweetalert.css');
 var principal = require('principal');
 
-require('semantic-ui/semantic.min.css');
-require('semantic-ui/semantic.min.js');
 
 var workspace = {
     stores: [],
@@ -22,6 +20,8 @@ bus.register(workspace);
 
 workspace.on('login.required logout.done', function () {
     page('/auth/login');
+}).on('go', function (target) {
+    page(target);
 });
 
 var clear = function (ctx, next) {

@@ -24,6 +24,7 @@ module.exports = {
             'toastr': resolvePath('node_modules/toastr/build/'),
             'page': resolvePath('node_modules/page/'),
             'semantic-ui': resolvePath('vendors/semantic/dist'),
+            'chai-jquery$': resolvePath('node_modules/chai-jquery/chai-jquery.js'),
 
             'config$': resolvePath('js/config.js'),
             'stores': resolvePath('js/stores'),
