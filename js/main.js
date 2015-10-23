@@ -1,10 +1,11 @@
 var riot = require('riot');
 var page = require('page');
 var authStore = require('stores/auth.js');
+var spuTypeStore = require('stores/spu-type.js');
 var bus = require('riot-bus');
 
-require('tags/login-app.tag');
-require('tags/spu-type-list-app.tag');
+require('./tags/login-app.tag');
+require('./tags/spu-type-list-app.tag');
 
 var swal = require('sweetalert/sweetalert.min.js');
 require('sweetalert/sweetalert.css');
@@ -16,7 +17,6 @@ var workspace = {
 };
 
 riot.observable(workspace);
-bus.register(workspace);
 
 workspace.on('login.required logout.done', function () {
     page('/auth/login');
@@ -24,14 +24,15 @@ workspace.on('login.required logout.done', function () {
     page(target);
 });
 
-var clear = function (ctx, next) {
+var resetStores = function (ctx, next) {
     bus.clear();
+    bus.register(workspace);
     next();
 };
 
 var loginRequired = function (ctx, next) {
     if (authStore.authenticated()) {
-        ctx.user = authStore.currentUser();
+        ctx.user = authStore.user();
         bus.register(authStore);
         principal.resetIdentity(ctx);
         next();
@@ -47,12 +48,14 @@ var login = function (ctx, next) {
 };
 
 var spuTypeList = function (ctx, next) {
+    bus.register(spuTypeStore);
     riot.mount('#main', 'spu-type-list-app');
+    bus.trigger('spuType.list.fetch');
     next();
 };
 
-page('/auth/login', clear, login);
-page('/spu/spu-type-list', clear, loginRequired, spuTypeList);
+page('/auth/login', resetStores, login);
+page('/spu/spu-type-list', resetStores, loginRequired, spuTypeList);
 page('/', '/spu/spu-type-list');
 
 page();
