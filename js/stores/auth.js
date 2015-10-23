@@ -51,10 +51,6 @@ Auth.prototype.authenticated = function () {
     return !!this._user;
 };
 
-Auth.prototype.currentUser = function () {
-    return this._user;
-};
-
 Auth.prototype.user = function () {
     return this._user;
 };

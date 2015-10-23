@@ -64,6 +64,7 @@
     "superagent-no-cache": "^0.1.0",
     "sweetalert": "^1.1.0",
     "toastr": "^2.1.2",
+    "url-join": "0.0.1",
     "url-loader": "^0.5.6",
     "webpack": "^1.12.2",
     "webpack-dev-server": "^1.12.1",
@@ -75,7 +76,6 @@
     "gulp-mocha-phantomjs": "^0.10.1",
     "inject-loader": "^2.0.1",
     "mocha": "^2.3.3",
-    "mocha-loader": "^0.7.1",
-    "node-phantom": "^0.2.5"
+    "mocha-loader": "^0.7.1"
   }
 }

@@ -86,9 +86,7 @@ gulp.task('webpack-dev-server', function(callback) {
 
 gulp.task('default', ['template-compile', 'watch', 'webpack-dev-server']);
 
-var mochaPhantomJS = require('gulp-mocha-phantomjs');
-
 gulp.task('test', function () {
     return gulp.src('test/test-auth.html')
-    .pipe(mochaPhantomJS());
+    .pipe(require('gulp-mocha-phantomjs')());
 });
