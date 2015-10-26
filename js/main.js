@@ -6,6 +6,7 @@ var bus = require('riot-bus');
 
 require('./tags/login-app.tag');
 require('./tags/spu-type-list-app.tag');
+require('./tags/nav-bar.tag');
 
 var swal = require('sweetalert/sweetalert.min.js');
 require('sweetalert/sweetalert.css');
@@ -54,8 +55,15 @@ var spuTypeList = function (ctx, next) {
     next();
 };
 
-page('/auth/login', resetStores, login);
-page('/spu/spu-type-list', resetStores, loginRequired, spuTypeList);
+var navBar = function (ctx, next) {
+    riot.mount('#nav-bar', 'nav-bar', {
+        ctx: ctx
+    });
+    next();
+};
+
+page('/auth/login', resetStores, navBar, login);
+page('/spu/spu-type-list', resetStores, loginRequired, navBar, spuTypeList);
 page('/', '/spu/spu-type-list');
 
 page();
