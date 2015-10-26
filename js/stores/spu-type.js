@@ -6,8 +6,8 @@ var SPUTypeStore = function () {
     riot.observable(this);
     this.on('spuType.list.fetch', function () {
         this.fetchList();
-    }).on('spuType.update', function (id, patch) {
-        this.update(id, patch);
+    }).on('spuType.update', function (item, patch) {
+        this.update(item, patch);
     });
 };
 
@@ -22,13 +22,13 @@ SPUTypeStore.prototype.fetchList = function () {
     });
 };
 
-SPUTypeStore.prototype.update = function (id, patch) {
+SPUTypeStore.prototype.update = function (item, patch) {
     bus.trigger('spuType.updating');
-    request.put('/spu/spu-type/' + id, patch).done(function (res) {
-        bus.trigger('spuType.updated', res.body);
+    request.put('/spu/spu-type/' + item.id, patch).done(function (res) {
+        bus.trigger('spuType.updated', res.body, patch);
         bus.trigger('spuType.update.done');
     }).fail(function (err, res) {
-        bus.trigger('spuType.update.failed', err);
+        bus.trigger('spuType.update.failed', item, patch, err);
         bus.trigger('spuType.update.done');
     });
 };
