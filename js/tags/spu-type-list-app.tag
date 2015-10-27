@@ -31,14 +31,14 @@ require('toastr/toastr.min.css');
     </div>
     <div class="ui bottom attached segment" if={ visibleItems }>
       <div class="ui items">
-        <div class="item" each={ item in items } show={ ~visibleItems.indexOf(item) }>
+        <div class="item" each={ item in items } show={ ~visibleItems.indexOf(item) } data-item-id={ item.id }>
           <div class="image">
-            <a href="/spu-type/{ item.id }">
-              <centered-image src={ urljoin(config.backend, item.picPath) }>
+            <a href="/spu/spu-type/{ item.id }">
+              <centered-image img={ urljoin(config.backend, item.picPath) }>
             </a>
           </div>
           <div class="content">
-            <a class="header" href="/spu-type/{id}">{ item.name } </a>
+            <a class="header" href="/spu/spu-type/{ item.id }">{ item.name } </a>
             <div class="description">
               <div>
                 产品数量 - { item.spuCnt }
@@ -171,29 +171,24 @@ require('toastr/toastr.min.css');
           self.update();
         }
       });
-    }).on('spuType.updated spuType.update.failed', function (which, item, patch) {
-      if (which === 'spuType.update.failed' && item) {
-      }
-      if (which === 'spuType.updated') {
-        toastr.success('更新成功！', '', {
-          positionClass: 'toast-bottom-center',
-          timeOut: 1000,
-        });
-        self.update();
-      } else {
-        toastr.error('更新失败！', '', {
-          positionClass: 'toast-bottom-center',
-          timeOut: 1000,
-        });
-        // restore the old value
-        for (var item_ of self.items) {
-          if (item_.id === item.id) {
-            _.assign(item_, item);
-            break;
-          }
+    }).on('spuType.updated', function () {
+      toastr.success('更新成功！', '', {
+        positionClass: 'toast-bottom-center',
+        timeOut: 1000,
+      });
+    }).on('spuType.update.failed', function (oldItem, patch) {
+      toastr.error('更新失败！', '', {
+        positionClass: 'toast-bottom-center',
+        timeOut: 1000,
+      });
+      // restore the old value
+      for (var item_ of self.items) {
+        if (item_.id === oldItem.id) {
+          _.assign(item_, oldItem);
+          break;
         }
-        self.update();
       }
+      self.update();
     });
 
   </script>
