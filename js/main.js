@@ -54,7 +54,6 @@ var spuTypeList = function (ctx, next) {
     bus.register(spuTypeStore);
     riot.mount('#main', 'spu-type-list-app');
     bus.trigger('spuType.list.fetch');
-    next();
 };
 
 var navBar = function (ctx, next) {
@@ -69,7 +68,6 @@ var spuType = function (ctx, next) {
     bus.register(assetStore);
     riot.mount('#main', 'spu-type-app');
     bus.trigger('spuType.fetch', ctx.params.id);
-    next();
 };
 
 page(function (ctx, next) {
