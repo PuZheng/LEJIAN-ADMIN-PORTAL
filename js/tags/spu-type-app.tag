@@ -11,6 +11,8 @@ var toastr = require('toastr/toastr.min.js');
 require('toastr/toastr.min.css');
 var nprogress = require('nprogress/nprogress.js');
 require('nprogress/nprogress.css');
+var swal = require('sweetalert/sweetalert.min.js');
+require('sweetalert/sweetalert.css');
 
 <spu-type-app>
   <div class="ui page grid">
@@ -29,7 +31,7 @@ require('nprogress/nprogress.css');
                 <button class="ui green button edit { editing && 'disabled' }" data-content="编辑对象" onclick={ onClickEdit }>
                   <i class="icon edit"></i>
                 </button>
-                <button class="ui red button" data-content="删除对象">
+                <button class="ui red button" data-content="删除对象" onclick={ onClickDelete }>
                   <i class="icon trash"></i>
                 </button>
               </div>
@@ -40,6 +42,10 @@ require('nprogress/nprogress.css');
       <div class="ui bottom attached segment">
         <loader if={ loading }></loader>
         <form class="ui form" action="" show={ spuType }>
+          <div class="ui inline field">
+            <label for="">SPU数量</label>
+            <div class="ui tiny header">{ spuType.spuCnt }</div>
+          </div>
           <div class="ui inline field">
             <label for="">名称</label>
             <input type="text" name="name" value={ spuType.name } disabled={ !editing }>
@@ -88,6 +94,9 @@ require('nprogress/nprogress.css');
     form .field label {
       width: 10rem !important;
     }
+    form .field .header {
+      display: inline-block;
+    }
     form centered-image {
       display: inline-block;
       width: 256px;
@@ -115,17 +124,40 @@ require('nprogress/nprogress.css');
     var self = this;
     self.mixin(bus.Mixin);
 
-    self.urljoin = urljoin;
-    self.config = config;
-    self.onClickEdit = function (e) {
-      self.editing = true;
-      self.update();
-    };
-    self.onCancelEdit = function (e) {
-      e.preventDefault();
-      self.editing = false;
-      self.update();
-    }
+    _.extend(self, {
+      urljoin: urljoin,
+      config: config,
+      onClickEdit: function (e) {
+        self.editing = true;
+        self.update();
+      },
+      onCancelEdit: function (e) {
+        e.preventDefault();
+        self.editing = false;
+        self.update();
+      },
+      onClickDelete: function (e) {
+        e.preventDefault();
+        if (self.spuType.spuCnt != 0) {
+          swal({
+            type: 'error',
+            title: '请删除该分类下所有的SPU后，再删除本分类!',
+            showCancelButton: true,
+          });
+        } else {
+          swal({
+            type: 'warning',
+            title: '您确认要删除该分类?',
+            closeOnConfirm: false,
+            showCancelButton: true,
+          }, function (confirmed) {
+            if (confirmed) {
+              bus.trigger('spuType.delete', self.spuType.id);
+            }
+          });
+        }
+      }
+    });
 
     self.on('mount', function () {
       $(self.root).find('[data-content]').popup();
@@ -149,12 +181,12 @@ require('nprogress/nprogress.css');
         bus.trigger('spuType.update', _.extend({}, self.spuType), _.object($(this).serializeArray().filter(function (i) {
           return self.spuType[i.name] != i.value;
         }).map(function (i) {
-          return [i.name, i.value];
+          return [i.name, i.name === 'enabled'? i.value === 'true': i.value];
         })));
       });
       $(self.root).find('.ui.checkbox').checkbox({
         onChange: function () {
-          $(self.root).find('[name=enabled]').val($(this).is(':checked')? 1: 0);
+          $(self.root).find('[name=enabled]').val($(this).is(':checked'));
         },
       });
     }).on('update', function () {
@@ -201,10 +233,23 @@ require('nprogress/nprogress.css');
       self.loading = false;
       self.update();
     }).on('spuType.fetch.failed', function () {
-        toastr.error('无法获取对象！', '', {
-          positionClass: 'toast-bottom-center',
-          timeOut: 1000,
-        });
+      toastr.error('无法获取对象！', '', {
+        positionClass: 'toast-bottom-center',
+        timeOut: 1000,
+      });
+    }).on('spuType.deleted', function () {
+      swal({
+        type: 'success',
+        title: '成功删除!',
+      }, function () {
+        bus.trigger('go', '/');
+      });
+    }).on('spuType.delete.failed', function () {
+      swal.close();
+      toastr.error('删除失败！', '', {
+        positionClass: 'toast-bottom-center',
+        timeOut: 1000,
+      });
     });
   </script>
 </spu-type-app>
