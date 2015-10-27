@@ -66,8 +66,10 @@ var navBar = function (ctx, next) {
 var spuType = function (ctx, next) {
     bus.register(spuTypeStore);
     bus.register(assetStore);
-    riot.mount('#main', 'spu-type-app');
-    bus.trigger('spuType.fetch', ctx.params.id);
+    riot.mount('#main', 'spu-type-app', {
+        itemId: ctx.params.id
+    });
+    ctx.params.id && bus.trigger('spuType.fetch', ctx.params.id);
 };
 
 page(function (ctx, next) {
@@ -85,6 +87,7 @@ page(function (ctx, next) {
 
 page('/auth/login', resetStores, navBar, login);
 page('/spu/spu-type-list', resetStores, loginRequired, navBar, spuTypeList);
+page('/spu/spu-type/', resetStores, loginRequired, navBar, spuType);
 page('/spu/spu-type/:id', resetStores, loginRequired, navBar, spuType);
 page('/', '/spu/spu-type-list');
 

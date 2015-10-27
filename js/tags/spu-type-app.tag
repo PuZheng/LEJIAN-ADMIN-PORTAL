@@ -2,6 +2,7 @@ var riot = require('riot');
 var bus = require('riot-bus');
 var config = require('config');
 var urljoin = require('url-join');
+var request = require('request');
 
 require('semantic-ui/semantic.css');
 require('semantic-ui/semantic.min.js');
@@ -21,12 +22,15 @@ require('sweetalert/sweetalert.css');
         <div class="ui grid">
           <div class="two column wide row">
             <div class="column">
-              <div class="ui header">
-                SPU类型-<i>{ spuType.name }</i>
+              <div class="ui header" if={ opts.id }>
+                SPU分类-<i>{ spuType.name }</i>
+              </div>
+              <div class="ui header" if={ !opts.id }>
+                创建SPU分类
               </div>
               <i class="icon asterisk" if={ editing }></i>
             </div>
-            <div class="right aligned column">
+            <div class="right aligned column" if={ spuType }>
               <div class="ui icon buttons">
                 <button class="ui green button edit { editing && 'disabled' }" data-content="编辑对象" onclick={ onClickEdit }>
                   <i class="icon edit"></i>
@@ -41,8 +45,10 @@ require('sweetalert/sweetalert.css');
       </div>
       <div class="ui bottom attached segment">
         <loader if={ loading }></loader>
-        <form class="ui form" action="" show={ spuType }>
-          <div class="ui inline field">
+        <form class="ui form" action="">
+          <div class="ui error message">
+          </div>
+          <div class="ui inline field" if={ spuType }>
             <label for="">SPU数量</label>
             <div class="ui tiny header">{ spuType.spuCnt }</div>
           </div>
@@ -65,14 +71,16 @@ require('sweetalert/sweetalert.css');
             <label for="">图标</label>
             <div>
               <centered-image img={ urljoin(config.backend, spuType.picPath) }></centered-image>
-              <input type="file" disabled={ !editing }>
+              <input type="hidden" name="picPath" value={ spuType.picPath }>
             </div>
-            <input type="hidden" name="picPath" value={ spuType.picPath }>
+            <button class="ui button" if={ !opts.itemId }>上传图片
+              <input type="file" disabled={ !editing }>
+            </button>
           </div>
           <hr>
           <div class="ui buttons">
             <button class="ui button" if={ editing } onclick={ onCancelEdit }>取消</button>
-            <button class="ui green button" if={ editing }>提交</button>
+            <input type="submit" class="ui green button" if={ editing } value="提交"></input>
           </div>
         </form>
       </div>
@@ -101,6 +109,11 @@ require('sweetalert/sweetalert.css');
       display: inline-block;
       width: 256px;
       height: 256px;
+    }
+
+    form .button {
+      display: inline-block;
+      position: relative;
     }
 
     form .image.field > div {
@@ -156,7 +169,8 @@ require('sweetalert/sweetalert.css');
             }
           });
         }
-      }
+      },
+      editing: !opts.itemId,
     });
 
     self.on('mount', function () {
@@ -176,18 +190,57 @@ require('sweetalert/sweetalert.css');
       });
       self.$fileInput = $(self.root).find('[type=file]');
       nprogress.configure({ trickle: false });
-      $(self.root).find('form').submit(function (e) {
-        e.preventDefault();
-        bus.trigger('spuType.update', _.extend({}, self.spuType), _.object($(this).serializeArray().filter(function (i) {
-          return self.spuType[i.name] != i.value;
-        }).map(function (i) {
-          return [i.name, i.name === 'enabled'? i.value === 'true': i.value];
-        })));
-      });
       $(self.root).find('.ui.checkbox').checkbox({
         onChange: function () {
           $(self.root).find('[name=enabled]').val($(this).is(':checked'));
         },
+      });
+      var formOpts = {
+        fields: {
+          name: {
+            identifier: 'name',
+            rules: [
+              {
+                type: 'empty',
+                prompt: '名称不能为空'
+              }
+            ]
+          },
+          picPath: {
+            identifier: 'picPath',
+            rules: [
+              {
+                type: 'empty',
+                prompt: '图片不能为空'
+              },
+            ]
+          },
+        },
+        on: 'submit',
+        keyboardShortcuts: false,
+        onSuccess: function () {
+          if (opts.itemId) {
+            bus.trigger('spuType.update', _.extend({}, self.spuType), _.object($(this).serializeArray().filter(function (i) {
+              return self.spuType[i.name] != i.value;
+            }).map(function (i) {
+              return [i.name, i.name === 'enabled'? i.value === 'true': i.value];
+            })));
+          } else {
+            request('/spu/spu-type-list?name=' + this.name.value).done(function (res) {
+              if (!res.body.data.length) {
+                bus.trigger('spuType.create', _.object(self.$form.serializeArray().map(function (i) {
+                  return [i.name, i.name === 'enabled'? i.value === 'true': i.value];
+                })));
+              } else {
+                self.$form.form('add errors', ['名称已经存在'])
+              }
+            });
+          }
+        }
+      };
+      self.$form = $(self.root).find('form').form(formOpts).submit(function (e) {
+        e.preventDefault();
+        return false;
       });
     }).on('update', function () {
       if (self.spuType) {
@@ -247,6 +300,20 @@ require('sweetalert/sweetalert.css');
     }).on('spuType.delete.failed', function () {
       swal.close();
       toastr.error('删除失败！', '', {
+        positionClass: 'toast-bottom-center',
+        timeOut: 1000,
+      });
+    }).on('spuType.created', function (item) {
+      swal({
+        type: 'success',
+        title: '',
+        text: 'spu分类创建成功，是否继续编辑?',
+        showCancelButton: true,
+      }, function (confirmed) {
+        bus.trigger('go', confirmed? '/spu/spu-type/' + item.id: '/');
+      });
+    }).on('spuType.create.failed', function () {
+      toastr.error('创建失败！', '', {
         positionClass: 'toast-bottom-center',
         timeOut: 1000,
       });
