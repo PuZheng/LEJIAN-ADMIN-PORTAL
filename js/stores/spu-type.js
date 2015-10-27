@@ -12,6 +12,8 @@ var SPUTypeStore = function () {
         this.fetch(id);
     }).on('spuType.delete', function (id) {
         this.delete(id);
+    }).on('spuType.create', function (data) {
+        this.create(data);
     });
 };
 
@@ -56,6 +58,17 @@ SPUTypeStore.prototype.delete = function (id) {
     }).fail(function (err, res) {
         bus.trigger('spuType.delete.failed', id, err);
         bus.trigger('spuType.delete.done');
+    });
+};
+
+SPUTypeStore.prototype.create = function (data) {
+    bus.trigger('spuType.creating');
+    request.post('/spu/spu-type/', data).done(function (res) {
+        bus.trigger('spuType.created', res.body);
+        bus.trigger('spuType.create.done');
+    }).fail(function (err, res) {
+        bus.trigger('spuType.create.failed', data, err);
+        bus.trigger('spuType.create.done');
     });
 };
 

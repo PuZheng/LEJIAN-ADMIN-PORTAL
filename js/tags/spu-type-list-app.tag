@@ -14,6 +14,9 @@ require('toastr/toastr.min.css');
       <div class="ui header">
         SPU类型列表
       </div>
+      <a class="ui icon green circular button" href="/spu/spu-type" data-content="创建SPU分类">
+        <i class="icon plus"></i>
+      </a>
     </div>
     <div class="ui attached segment ops">
       <div class="ui checkbox">
@@ -63,6 +66,15 @@ require('toastr/toastr.min.css');
       width: 96px !important;
       height: 96px !important;
     }
+
+    .top.segment > div {
+      display: inline-block !important;
+    }
+
+    .top.segment > .button {
+      margin-left: 3rem;
+    }
+
     .item .description > div {
       margin-left: 2rem;
       display: inline-block;
@@ -141,6 +153,7 @@ require('toastr/toastr.min.css');
       });
       self.sorter = 'weight';
       self.order = 'descending';
+      $(self.root).find('[data-content]').popup();
     }).on('update', function () {
       setTimeout(function () {
         $(self.root).find('.item .ui.checkbox').each(function (idx) {
