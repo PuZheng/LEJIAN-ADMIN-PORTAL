@@ -3,12 +3,14 @@ var page = require('page');
 var authStore = require('stores/auth.js');
 var spuTypeStore = require('stores/spu-type.js');
 var assetStore = require('stores/asset.js');
+var spuStore = require('stores/spu.js');
 var bus = require('riot-bus');
 
 require('tags/login-app.tag');
 require('tags/spu-type-list-app.tag');
 require('tags/nav-bar.tag');
 require('tags/spu-type-app.tag');
+require('tags/spu-list-app.tag');
 
 var swal = require('sweetalert/sweetalert.min.js');
 require('sweetalert/sweetalert.css');
@@ -47,7 +49,6 @@ var loginRequired = function (ctx, next) {
 var login = function (ctx, next) {
     riot.mount('#main', 'login-app');
     bus.register(authStore);
-    next();
 };
 
 var spuTypeList = function (ctx, next) {
@@ -72,6 +73,13 @@ var spuType = function (ctx, next) {
     ctx.params.id && bus.trigger('spuType.fetch', ctx.params.id);
 };
 
+var spuList = function (ctx, next) {
+    bus.register(spuStore);
+    bus.register(assetStore);
+    riot.mount('#main', 'spu-list-app');
+    bus.trigger('spu.list.fetch');
+};
+
 page(function (ctx, next) {
     var qs = ctx.querystring;
     ctx.query = {};
@@ -89,6 +97,7 @@ page('/auth/login', resetStores, navBar, login);
 page('/spu/spu-type-list', resetStores, loginRequired, navBar, spuTypeList);
 page('/spu/spu-type/', resetStores, loginRequired, navBar, spuType);
 page('/spu/spu-type/:id', resetStores, loginRequired, navBar, spuType);
+page('/spu/spu-list', resetStores, loginRequired, navBar, spuList);
 page('/', '/spu/spu-type-list');
 
 page();
