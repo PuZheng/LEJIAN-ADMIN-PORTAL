@@ -1,13 +1,17 @@
 var riot = require('riot');
 
 <centered-image>
-  <img src={ opts['riot-src'] } alt="">
+  <img src={ opts.img } alt="">
   <style scoped>
     img {
-      width: 100%;
-      height: 100%;
+      width: 100% !important;
+      height: 100% !important;
     }
   </style>
   <script>
+    var self = this;
+    self.on('mount', function () {
+      console.log(opts);
+    })
   </script>
 </centered-image>

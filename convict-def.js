@@ -14,6 +14,12 @@ var conf = convict({
         default: "http://127.0.0.1:5000",
         env: "BACKEND"
     },
+    uploadTo: {
+        doc: "upload to",
+        format: "url",
+        default: "http://127.0.0.1:5000/upload",
+        env: "UPLOAD_TO"
+    }
 });
 
 // Load environment dependent configuration

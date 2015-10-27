@@ -53,6 +53,7 @@
     "lodash": "^3.10.1",
     "map-stream": "0.0.6",
     "moment": "^2.10.6",
+    "nprogress": "^0.2.0",
     "page": "^1.6.4",
     "require-dot-file": "^0.4.0",
     "riot": "^2.2.4",

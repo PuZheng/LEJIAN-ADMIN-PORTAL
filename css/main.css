@@ -230,10 +230,10 @@ textarea {
     abbr[title]:after {
         content: " (" attr(title) ")";
     }
-
-    /*
-     * Don't show links that are fragment identifiers,
-     * or use the `javascript:` pseudo protocol
+./
+./    /*
+./     * Don't show links that are fragment identifiers,
+./     * or use the `javascript:` pseudo protocol
      */
 
     a[href^="#"]:after,
@@ -276,4 +276,8 @@ textarea {
     h3 {
         page-break-after: avoid;
     }
+}
+
+#main {
+    padding-top: 4rem;
 }
