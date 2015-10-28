@@ -73,7 +73,7 @@ require('sweetalert/sweetalert.css');
               <centered-image img={ urljoin(config.backend, spuType.picPath) }></centered-image>
               <input type="hidden" name="picPath" value={ spuType.picPath }>
             </div>
-            <button class="ui button" if={ !opts.itemId }>上传图片
+            <button class="ui button">上传图片
               <input type="file" disabled={ !editing }>
             </button>
           </div>
@@ -320,4 +320,3 @@ require('sweetalert/sweetalert.css');
     });
   </script>
 </spu-type-app>
-
