@@ -7,6 +7,8 @@ var urljoin = require('url-join');
 require('./centered-image.tag');
 var toastr = require('toastr/toastr.min.js');
 require('toastr/toastr.min.css');
+require('magnific-popup/magnific-popup.css');
+require('magnific-popup/jquery.magnific-popup.js');
 
 <spu-type-list-app>
   <div class="ui page grid">
@@ -33,6 +35,50 @@ require('toastr/toastr.min.css');
       </button>
     </div>
     <div class="ui bottom attached segment" if={ visibleItems }>
+      <table class="ui sortable compact striped table">
+        <thead class="full-width">
+          <th>
+            <div class="ui checkbox">
+              <input type="checkbox" name="select-all">
+              <label for=""></label>
+            </div>
+          </th>
+          <th>名称</th>
+          <th>图片</th>
+          <th class="{ sortBy.name === 'spu_cnt' && 'sorted ' + \{'asc': 'ascending', 'desc': 'descending'\}[sortBy.order]  }">
+            <a href="?sort_by=spu_cnt.{ sortBy.name === 'spu_cnt'? \{'asc': 'desc', 'desc': 'asc'\}[sortBy.order]: 'asc' }">
+              产品数量
+            </a>
+          </th>
+          <th>权重</th>
+          <th>是否激活</th>
+        </thead>
+        <tbody class="full-width">
+          <tr each={ item in items } show={ ~visibleItems.indexOf(item) } data-item-id={ item.id }>
+            <td>
+              <div class="ui checkbox">
+                <input type="checkbox" name="">
+                <label for=""></label>
+              </div>
+            </td>
+            <td>
+              <a href={ urljoin(config.backend, item.picPath) } class="image-link">
+                <centered-image img={ urljoin(config.backend, item.picPath) } class="ui tiny image">
+              </a>
+            </td>
+            <td>
+              <a href="/spu/spu-type/{ item.id }">
+                { item.name }
+              </a>
+            </td>
+            <td>{ item.spuCnt }</td>
+            <td>{ item.weight }</td>
+            <td>
+              <i class="ui icon { item.enabled? 'green checkmark': 'red remove' }"></i>
+            </td>
+          </tr>
+        </tbody>
+      </table>
       <div class="ui items">
         <div class="item" each={ item in items } show={ ~visibleItems.indexOf(item) } data-item-id={ item.id }>
           <div class="image">
@@ -83,6 +129,9 @@ require('toastr/toastr.min.css');
     .ops.attached.segment > div {
       margin-left: 1rem;
     }
+    table thead th:first-child, table tbody td:first-child {
+      text-align: center;
+    }
   </style>
   <script>
     var self = this;
@@ -112,6 +161,10 @@ require('toastr/toastr.min.css');
         }
       },
       sortHandlers: {},
+      sortBy: {
+        name: 'spu_cnt',
+        order: 'desc',
+      },
     });
 
     ['weight', 'spuCnt'].forEach(function (sorter) {
@@ -154,7 +207,8 @@ require('toastr/toastr.min.css');
       self.sorter = 'weight';
       self.order = 'descending';
       $(self.root).find('[data-content]').popup();
-    }).on('update', function () {
+    }).on('updated', function () {
+      $(self.root).find('a.image-link').magnificPopup({type:'image'});
       setTimeout(function () {
         $(self.root).find('.item .ui.checkbox').each(function (idx) {
           if ($(this).attr('data-enabled')) {

@@ -26,6 +26,7 @@ module.exports = {
             'semantic-ui': resolvePath('vendors/semantic/dist'),
             'chai-jquery$': resolvePath('node_modules/chai-jquery/chai-jquery.js'),
             'url-join$': resolvePath('node_modules/url-join/lib/url-join.js'),
+            'magnific-popup': resolvePath('node_modules/magnific-popup/dist/'),
 
             'config$': resolvePath('./js/config.js'),
             'stores': resolvePath('./js/stores'),
