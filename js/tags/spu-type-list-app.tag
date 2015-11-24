@@ -19,56 +19,62 @@ require('magnific-popup/jquery.magnific-popup.js');
       <a class="ui icon green circular button" href="/spu/spu-type" data-content="创建SPU分类">
         <i class="icon plus"></i>
       </a>
+      <a class="ui icon red circular button" href="#" data-content="删除SPU分类" onclick={ delete }>
+        <i class="icon trash"></i>
+      </a>
     </div>
     <div class="ui attached segment ops">
-      <div class="ui checkbox">
+      <div class="ui search">
+        <div class="ui icon input">
+          <input class="prompt" type="text" placeholder="输入名称" name="search" onkeyup={ search }>
+          <i class="search icon"></i>
+        </div>
+        <div class="results"></div>
+      </div>
+      <div class="only enabled ui checkbox">
         <input type="checkbox" name="">
         <label for="">仅展示激活类型</label>
       </div>
-      <button class="ui icon button { sorter === 'weight' && 'green' }" onclick={ sortHandlers.weight }>
-        <i class="icon sort { sorter === 'weight' && order }"></i>
-        按权重
-      </button>
-      <button class="ui icon button { sorter === 'spuCnt' && 'green' }" onclick={ sortHandlers.spuCnt }>
-        <i class="icon sort { sorter === 'spuCnt' && order }"></i>
-        按SPU数量
-      </button>
     </div>
     <div class="ui bottom attached segment" if={ visibleItems }>
       <table class="ui sortable compact striped table">
         <thead class="full-width">
           <th>
-            <div class="ui checkbox">
-              <input type="checkbox" name="select-all">
+            <div class="select-all ui checkbox">
+              <input type="checkbox">
               <label for=""></label>
             </div>
           </th>
           <th>名称</th>
           <th>图片</th>
-          <th class="{ sortBy.name === 'spu_cnt' && 'sorted ' + \{'asc': 'ascending', 'desc': 'descending'\}[sortBy.order]  }">
-            <a href="?sort_by=spu_cnt.{ sortBy.name === 'spu_cnt'? \{'asc': 'desc', 'desc': 'asc'\}[sortBy.order]: 'asc' }">
+          <th class="{ sortBy.name === 'spu_cnt' && 'sorted ' + \{'asc': 'ascending', 'desc': 'descending'\}[sortBy.order]  }" onclick={ sortHandlers['spu_cnt'] }>
+            <a href="#">
               产品数量
             </a>
           </th>
-          <th>权重</th>
+          <th class="{ sortBy.name === 'weight' && 'sorted ' + \{'asc': 'ascending', 'desc': 'descending'\}[sortBy.order]  }" onclick={ sortHandlers.weight }>
+            <a href="#">
+              权重
+            </a>
+          </th>
           <th>是否激活</th>
         </thead>
         <tbody class="full-width">
           <tr each={ item in items } show={ ~visibleItems.indexOf(item) } data-item-id={ item.id }>
             <td>
-              <div class="ui checkbox">
-                <input type="checkbox" name="">
+              <div class="select ui checkbox">
+                <input type="checkbox" data-id={ item.id }>
                 <label for=""></label>
               </div>
             </td>
             <td>
-              <a href={ urljoin(config.backend, item.picPath) } class="image-link">
-                <centered-image img={ urljoin(config.backend, item.picPath) } class="ui tiny image">
+              <a href="/spu/spu-type/{ item.id }">
+                { item.name }
               </a>
             </td>
             <td>
-              <a href="/spu/spu-type/{ item.id }">
-                { item.name }
+              <a href={ urljoin(config.backend, item.picPath) } class="image-link">
+                <centered-image img={ urljoin(config.backend, item.picPath) } class="ui tiny image"></centered-image>
               </a>
             </td>
             <td>{ item.spuCnt }</td>
@@ -79,32 +85,6 @@ require('magnific-popup/jquery.magnific-popup.js');
           </tr>
         </tbody>
       </table>
-      <div class="ui items">
-        <div class="item" each={ item in items } show={ ~visibleItems.indexOf(item) } data-item-id={ item.id }>
-          <div class="image">
-            <a href="/spu/spu-type/{ item.id }">
-              <centered-image img={ urljoin(config.backend, item.picPath) }>
-            </a>
-          </div>
-          <div class="content">
-            <a class="header" href="/spu/spu-type/{ item.id }">{ item.name } </a>
-            <div class="description">
-              <div>
-                产品数量 - { item.spuCnt }
-              </div>
-              <div class="ui checkbox slider" data-enabled={ item.enabled || '' }>
-                <input type="checkbox" name="enabled" data-item-id={ item.id }>
-                <label for="enabled">{ item.enabled? '激活': '未激活' }</label>
-              </div>
-              <div>
-                <label for="">权重</label>
-                <input class="ui input" type="number" name="" value={ item.weight } step="1.0" min="1" data-item-id={ item.id } onChange={ updateHandlers['weight'](item) } onkeypress={ onInputWeightKeyPress }>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      </div>
     </div>
   </div>
   <style scoped>
@@ -118,7 +98,7 @@ require('magnific-popup/jquery.magnific-popup.js');
     }
 
     .top.segment > .button {
-      margin-left: 3rem;
+      margin-left: 1rem;
     }
 
     .item .description > div {
@@ -128,6 +108,7 @@ require('magnific-popup/jquery.magnific-popup.js');
 
     .ops.attached.segment > div {
       margin-left: 1rem;
+      display: inline-block;
     }
     table thead th:first-child, table tbody td:first-child {
       text-align: center;
@@ -161,38 +142,71 @@ require('magnific-popup/jquery.magnific-popup.js');
         }
       },
       sortHandlers: {},
-      sortBy: {
-        name: 'spu_cnt',
-        order: 'desc',
+      delete: function () {
+        var selected = Array.from(self.selected);
+        if (!selected.length) {
+          swal({
+            type: 'info',
+            title: '',
+            text: '请至少选择一个SPU类型',
+          });
+        } else {
+          swal({
+            type: 'warning',
+            title: '',
+            text: '您确认要删除选中的SPU类型?',
+            showCancelButton: true,
+          }, function (confirmed) {
+            if (confirmed) {
+              bus.trigger('spuType.delete', selected);
+            }
+          });
+        }
+
       },
+      selected: new Set(),
     });
 
-    ['weight', 'spuCnt'].forEach(function (sorter) {
-      self.sortHandlers[sorter] = function (sorterCopy) {
-        return function () {
-          if (self.sorter === sorterCopy) {
-            self.order = {
-              descending: 'ascending',
-              ascending: 'descending'
-            }[self.order];
-          } else {
-            self.order = 'descending';
-          }
-          self.sorter = sorterCopy;
-          self.items = _(self.items).sortBy(function (item) {
-            return item[self.sorter];
-          });
-          if (self.order === 'descending') {
-            self.items = self.items.reverse();
-          }
-          self.items = self.items.value();
-          self.update();
-        };
-      }(sorter);
+    ['weight', 'spu_cnt'].forEach(function (field) {
+      self.sortHandlers[field] = function () {
+        var query = opts.ctx.query;
+        query['sort_by'] = field;
+        if (self.sortBy.name === field) {
+          query['sort_by'] += '.' + {
+            'asc': 'desc',
+            'desc': 'asc'
+          }[self.sortBy.order];
+        } else {
+          query['sort_by'] += '.asc';
+        }
+        query = _.pairs(query).map(function (p) {
+          return p.join('=');
+        }).join('&');
+        bus.trigger('go', '/spu/spu-type-list?' + query);
+      };
     });
+
+    self.search = function (e) {
+      var needle = $(e.target).val();
+      self.visibleItems = self.items.filter(function (item) {
+        return ~item.name.indexOf(needle);
+      });
+      self.update();
+    };
 
     self.on('mount', function () {
-      $(self.root).find('.ops .ui.checkbox').checkbox({
+      self.sortBy = function (sortBy) {
+        if (!sortBy) {
+          return {};
+        }
+        sortBy = sortBy.split('.');
+        return {
+          name: sortBy[0],
+          order: sortBy[1] || 'asc',
+        }
+      }(opts.ctx.query['sort_by']);
+      $(self.root).find('[data-content]').popup();
+      $(self.root).find('.only.enabled.checkbox').checkbox({
         onChecked: function () {
           self.visibleItems = self.items.filter(function (item) {
             return item.enabled;
@@ -204,24 +218,36 @@ require('magnific-popup/jquery.magnific-popup.js');
           self.update();
         }
       });
-      self.sorter = 'weight';
-      self.order = 'descending';
-      $(self.root).find('[data-content]').popup();
     }).on('updated', function () {
       $(self.root).find('a.image-link').magnificPopup({type:'image'});
-      setTimeout(function () {
-        $(self.root).find('.item .ui.checkbox').each(function (idx) {
-          if ($(this).attr('data-enabled')) {
-            $(this).checkbox('set checked');
-          } else {
-            $(this).checkbox('set unchecked');
-          }
-        });
-      }, 0);
+      $(self.root).find('.ui.select-all').checkbox({
+        onChecked: function () {
+          $(self.root).find('.ui.select.checkbox').checkbox('check');
+        },
+        onUnchecked: function () {
+          $(self.root).find('.ui.select.checkbox').checkbox('uncheck');
+        }
+      });
+      $(self.root).find('.ui.select.checkbox').checkbox({
+        onChecked: function () {
+          self.selected.add($(this).data('id'));
+        },
+        onUnchecked: function () {
+          self.selected.delete($(this).data('id'));
+        }
+      });
     }).on('spuType.list.fetching spuType.updating', function () {
       self.update();
     }).on('spuType.list.fetched', function (data) {
       self.items = data.data;
+      if (!_.isEmpty(self.sortBy)) {
+        self.items = _(self.items).sortBy(function (item) {
+          return item[self.sortBy.name] * {
+            'asc': 1,
+            'desc': -1,
+          }[self.sortBy.order];
+        }).value();
+      }
       self.visibleItems = self.items;
       self.update();
       $(self.root).find('.item .ui.checkbox').checkbox({

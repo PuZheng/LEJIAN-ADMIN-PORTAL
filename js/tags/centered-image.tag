@@ -11,7 +11,6 @@ var riot = require('riot');
   <script>
     var self = this;
     self.on('mount', function () {
-      console.log(opts);
     })
   </script>
 </centered-image>

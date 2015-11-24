@@ -17,7 +17,6 @@ module.exports = {
     resolve: {
         alias: {
             'jquery$': resolvePath('node_modules/jquery/dist/jquery.min.js'),
-            'riotjs$': resolvePath('node_modules/riot/riot.js'),
             'lodash$': resolvePath('node_modules/lodash/'),
             'moment': resolvePath('node_modules/moment/moment.js'),
             'sweetalert': resolvePath('node_modules/sweetalert/dist/'),

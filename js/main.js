@@ -52,7 +52,7 @@ var login = function (ctx, next) {
 
 var spuTypeList = function (ctx, next) {
     bus.register(spuTypeStore);
-    riot.mount('#main', 'spu-type-list-app', ctx);
+    riot.mount('#main', 'spu-type-list-app', { ctx: ctx });
     bus.trigger('spuType.list.fetch');
 };
 

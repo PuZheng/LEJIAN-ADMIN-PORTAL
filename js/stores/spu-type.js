@@ -10,8 +10,8 @@ var SPUTypeStore = function () {
         this.update(item, patch);
     }).on('spuType.fetch', function (id) {
         this.fetch(id);
-    }).on('spuType.delete', function (id) {
-        this.delete(id);
+    }).on('spuType.delete', function (ids) {
+        this.delete(ids);
     }).on('spuType.create', function (data) {
         this.create(data);
     });
@@ -50,13 +50,13 @@ SPUTypeStore.prototype.fetch = function (id) {
     });
 };
 
-SPUTypeStore.prototype.delete = function (id) {
+SPUTypeStore.prototype.delete = function (ids) {
     bus.trigger('spuType.deleting');
-    request.delete('/spu/spu-type/' + id).done(function (res) {
-        bus.trigger('spuType.deleted', id, res.body);
+    request.delete('/spu/spu-type/?ids=' + ids.join(',')).done(function (res) {
+        bus.trigger('spuType.deleted', ids, res.body);
         bus.trigger('spuType.delete.done');
     }).fail(function (err, res) {
-        bus.trigger('spuType.delete.failed', id, err);
+        bus.trigger('spuType.delete.failed', ids, err);
         bus.trigger('spuType.delete.done');
     });
 };
