@@ -4,6 +4,7 @@ var authStore = require('stores/auth.js');
 var spuTypeStore = require('stores/spu-type.js');
 var assetStore = require('stores/asset.js');
 var bus = require('riot-bus');
+var camelCase = require('camelcase');
 
 require('tags/login-app.tag');
 require('tags/spu-type-list-app.tag');
@@ -24,7 +25,9 @@ riot.observable(workspace);
 workspace.on('login.required logout.done', function () {
     page('/auth/login');
 }).on('go', function (target) {
-    page(target);
+    page.show(target);
+}).on('error', function (err) {
+    throw err;
 });
 
 var resetStores = function (ctx, next) {
@@ -53,7 +56,7 @@ var login = function (ctx, next) {
 var spuTypeList = function (ctx, next) {
     bus.register(spuTypeStore);
     riot.mount('#main', 'spu-type-list-app', { ctx: ctx });
-    bus.trigger('spuType.list.fetch');
+    bus.trigger('spuType.list.fetch', ctx.query);
 };
 
 var navBar = function (ctx, next) {
@@ -79,7 +82,7 @@ page(function (ctx, next) {
     if (qs) {
         qs.split('&').forEach(function(v) {
             var c = v.split('=');
-            ctx.query[c[0]] = Array.prototype.concat.apply([], c.slice(1)).join('=');
+            ctx.query[camelCase(c[0])] = Array.prototype.concat.apply([], c.slice(1)).join('=');
         });
     }
     next();

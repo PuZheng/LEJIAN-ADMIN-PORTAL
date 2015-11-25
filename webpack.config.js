@@ -33,6 +33,7 @@ module.exports = {
             'tags': resolvePath('./js/tags/'),
             'principal$': resolvePath('./js/principal.js'),
             'request$': resolvePath('./js/request.js'),
+            'build-qs$': resolvePath('./js/build-qs.js'),
         },
         root: '.',
     },

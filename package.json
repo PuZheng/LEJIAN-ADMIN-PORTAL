@@ -18,8 +18,10 @@
   "homepage": "https://github.com/PuZheng/LEJIAN-ADMIN-PORTAL#readme",
   "dependencies": {
     "better-console": "^0.2.4",
+    "camelcase": "^2.0.1",
     "convict": "^1.0.1",
     "css-loader": "^0.20.2",
+    "decamelize": "^1.1.1",
     "del": "^2.0.2",
     "extend": "^3.0.0",
     "file-loader": "^0.8.4",

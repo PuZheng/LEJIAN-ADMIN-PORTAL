@@ -1,11 +1,12 @@
 var riot = require('riot');
 var request = require('request');
 var bus = require('riot-bus');
+var camelCase = require('camelcase');
 
 var SPUTypeStore = function () {
     riot.observable(this);
-    this.on('spuType.list.fetch', function () {
-        this.fetchList();
+    this.on('spuType.list.fetch', function (query) {
+        this.fetchList(query);
     }).on('spuType.update', function (item, patch) {
         this.update(item, patch);
     }).on('spuType.fetch', function (id) {
@@ -17,15 +18,44 @@ var SPUTypeStore = function () {
     });
 };
 
-SPUTypeStore.prototype.fetchList = function () {
+SPUTypeStore.prototype.fetchList = function (query) {
     bus.trigger('spuType.list.fetching');
-    request('/spu/spu-type-list').done(function (res) {
-        bus.trigger('spuType.list.fetched', res.body);
+    var setupItems = function (query, items) {
+        if (query.sortBy) {
+            var sortBy = query.sortBy.split('.');
+            var field = camelCase(sortBy[0]);
+            var order = sortBy[1];
+            items = _(items).sortBy(function (item) {
+                return item[field] * {
+                    'asc': 1,
+                    'desc': -1,
+                }[order];
+            }).value();
+        }
+        if (query.onlyEnabled === '1') {
+            items = items.filter(function (item) {
+                return item.enabled;
+            });
+        }
+        return items;
+    };
+    if (this.items) {
+        bus.trigger('spuType.list.fetched', {
+            data: setupItems(query, this.items),
+        });
         bus.trigger('spuType.list.fetch.done');
-    }).fail(function (err, res) {
-        bus.trigger('spuType.list.fetch.failed', err);
-        bus.trigger('spuType.list.fetch.done');
-    });
+    } else {
+        request('/spu/spu-type-list').done(function (res) {
+            this.items = res.body.data;
+            bus.trigger('spuType.list.fetched', {
+                data: setupItems(query, this.items)
+            });
+            bus.trigger('spuType.list.fetch.done');
+        }.bind(this)).fail(function (err, res) {
+            bus.trigger('spuType.list.fetch.failed', err);
+            bus.trigger('spuType.list.fetch.done');
+        });
+    }
 };
 
 SPUTypeStore.prototype.update = function (item, patch) {
@@ -52,10 +82,13 @@ SPUTypeStore.prototype.fetch = function (id) {
 
 SPUTypeStore.prototype.delete = function (ids) {
     bus.trigger('spuType.deleting');
-    request.delete('/spu/spu-type/?ids=' + ids.join(',')).done(function (res) {
+    request.delete('/spu/spu-type-list/?ids=' + ids.join(',')).done(function (res) {
+        this.items = this.items.filter(function (item) {
+            return ids.indexOf(item.id) === -1;
+        });
         bus.trigger('spuType.deleted', ids, res.body);
         bus.trigger('spuType.delete.done');
-    }).fail(function (err, res) {
+    }.bind(this)).fail(function (err, res) {
         bus.trigger('spuType.delete.failed', ids, err);
         bus.trigger('spuType.delete.done');
     });

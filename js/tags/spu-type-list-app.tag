@@ -9,6 +9,7 @@ var toastr = require('toastr/toastr.min.js');
 require('toastr/toastr.min.css');
 require('magnific-popup/magnific-popup.css');
 require('magnific-popup/jquery.magnific-popup.js');
+var buildQS = require('build-qs');
 
 <spu-type-list-app>
   <div class="ui page grid">
@@ -26,17 +27,17 @@ require('magnific-popup/jquery.magnific-popup.js');
     <div class="ui attached segment ops">
       <div class="ui search">
         <div class="ui icon input">
-          <input class="prompt" type="text" placeholder="输入名称" name="search" onkeyup={ search }>
+          <input class="prompt" type="text" placeholder="输入名称" name="search" onkeyup={ doSearch } value={ opts.ctx.query.kw }>
           <i class="search icon"></i>
         </div>
         <div class="results"></div>
       </div>
       <div class="only enabled ui checkbox">
-        <input type="checkbox" name="">
+        <input type="checkbox" name="" checked={ opts.ctx.query.onlyEnabled === '1' }>
         <label for="">仅展示激活类型</label>
       </div>
     </div>
-    <div class="ui bottom attached segment" if={ visibleItems }>
+    <div class="ui bottom attached segment" if={ items }>
       <table class="ui sortable compact striped table">
         <thead class="full-width">
           <th>
@@ -60,7 +61,7 @@ require('magnific-popup/jquery.magnific-popup.js');
           <th>是否激活</th>
         </thead>
         <tbody class="full-width">
-          <tr each={ item in items } show={ ~visibleItems.indexOf(item) } data-item-id={ item.id }>
+          <tr each={ item in items } data-item-id={ item.id }>
             <td>
               <div class="select ui checkbox">
                 <input type="checkbox" data-id={ item.id }>
@@ -151,11 +152,25 @@ require('magnific-popup/jquery.magnific-popup.js');
             text: '请至少选择一个SPU类型',
           });
         } else {
+          if (selected.some(function (id) {
+            var item = self.items.filter(function (item) {
+              return item.id === parseInt(id);
+            })[0];
+            return item.spuCnt > 0;
+          })) {
+            swal({
+              type: 'error',
+              title: '',
+              text: '只能删除不包含SPU的SPU分类!'
+            });
+            return;
+          }
           swal({
             type: 'warning',
             title: '',
             text: '您确认要删除选中的SPU类型?',
             showCancelButton: true,
+            closeOnConfirm: false,
           }, function (confirmed) {
             if (confirmed) {
               bus.trigger('spuType.delete', selected);
@@ -170,29 +185,18 @@ require('magnific-popup/jquery.magnific-popup.js');
     ['weight', 'spu_cnt'].forEach(function (field) {
       self.sortHandlers[field] = function () {
         var query = opts.ctx.query;
-        query['sort_by'] = field;
+        query.sortBy = field;
         if (self.sortBy.name === field) {
-          query['sort_by'] += '.' + {
+          query.sortBy += '.' + {
             'asc': 'desc',
             'desc': 'asc'
           }[self.sortBy.order];
         } else {
-          query['sort_by'] += '.asc';
+          query.sortBy += '.asc';
         }
-        query = _.pairs(query).map(function (p) {
-          return p.join('=');
-        }).join('&');
-        bus.trigger('go', '/spu/spu-type-list?' + query);
+        bus.trigger('go', '/spu/spu-type-list?' + buildQS(query));
       };
     });
-
-    self.search = function (e) {
-      var needle = $(e.target).val();
-      self.visibleItems = self.items.filter(function (item) {
-        return ~item.name.indexOf(needle);
-      });
-      self.update();
-    };
 
     self.on('mount', function () {
       self.sortBy = function (sortBy) {
@@ -204,19 +208,14 @@ require('magnific-popup/jquery.magnific-popup.js');
           name: sortBy[0],
           order: sortBy[1] || 'asc',
         }
-      }(opts.ctx.query['sort_by']);
+      }(opts.ctx.query.sortBy);
       $(self.root).find('[data-content]').popup();
       $(self.root).find('.only.enabled.checkbox').checkbox({
-        onChecked: function () {
-          self.visibleItems = self.items.filter(function (item) {
-            return item.enabled;
-          });
-          self.update();
+        onChange: function () {
+          var query = opts.ctx.query;
+          query.onlyEnabled = $(this).is(':checked')? 1: 0;
+          bus.trigger('go', '/spu/spu-type-list?' + buildQS(query), opts.ctx.state);
         },
-        onUnchecked: function () {
-          self.visibleItems = self.items;
-          self.update();
-        }
       });
     }).on('updated', function () {
       $(self.root).find('a.image-link').magnificPopup({type:'image'});
@@ -240,15 +239,6 @@ require('magnific-popup/jquery.magnific-popup.js');
       self.update();
     }).on('spuType.list.fetched', function (data) {
       self.items = data.data;
-      if (!_.isEmpty(self.sortBy)) {
-        self.items = _(self.items).sortBy(function (item) {
-          return item[self.sortBy.name] * {
-            'asc': 1,
-            'desc': -1,
-          }[self.sortBy.order];
-        }).value();
-      }
-      self.visibleItems = self.items;
       self.update();
       $(self.root).find('.item .ui.checkbox').checkbox({
         onChange: function () {
@@ -264,25 +254,25 @@ require('magnific-popup/jquery.magnific-popup.js');
           self.update();
         }
       });
-    }).on('spuType.updated', function () {
-      toastr.success('更新成功！', '', {
-        positionClass: 'toast-bottom-center',
-        timeOut: 1000,
+    }).on('spuType.deleted', function () {
+      swal({
+        type: 'success',
+        title: '',
+        text: '删除成功!'
+      }, function () {
+        bus.trigger('go', opts.ctx.path);
       });
-    }).on('spuType.update.failed', function (oldItem, patch) {
-      toastr.error('更新失败！', '', {
-        positionClass: 'toast-bottom-center',
-        timeOut: 1000,
-      });
-      // restore the old value
-      for (var item_ of self.items) {
-        if (item_.id === oldItem.id) {
-          _.assign(item_, oldItem);
-          break;
-        }
-      }
-      self.update();
     });
-
+    self.doSearch = function () {
+      var allItems;
+      return function (e) {
+        !allItems && (allItems = self.items);
+        var needle = $(e.target).val().toLowerCase();
+        self.items = allItems.filter(function (item) {
+          return ~item.name.toLowerCase().indexOf(needle);
+        });
+        self.update();
+      };
+    }();
   </script>
 </spu-type-list-app>
