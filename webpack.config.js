@@ -17,7 +17,6 @@ module.exports = {
     resolve: {
         alias: {
             'jquery$': resolvePath('node_modules/jquery/dist/jquery.min.js'),
-            'riotjs$': resolvePath('node_modules/riot/riot.js'),
             'lodash$': resolvePath('node_modules/lodash/'),
             'moment': resolvePath('node_modules/moment/moment.js'),
             'sweetalert': resolvePath('node_modules/sweetalert/dist/'),
@@ -26,6 +25,7 @@ module.exports = {
             'semantic-ui': resolvePath('vendors/semantic/dist'),
             'chai-jquery$': resolvePath('node_modules/chai-jquery/chai-jquery.js'),
             'url-join$': resolvePath('node_modules/url-join/lib/url-join.js'),
+            'magnific-popup': resolvePath('node_modules/magnific-popup/dist/'),
 
             'config$': resolvePath('./js/config.js'),
             'stores': resolvePath('./js/stores'),
@@ -33,6 +33,7 @@ module.exports = {
             'tags': resolvePath('./js/tags/'),
             'principal$': resolvePath('./js/principal.js'),
             'request$': resolvePath('./js/request.js'),
+            'build-qs$': resolvePath('./js/build-qs.js'),
         },
         root: '.',
     },
