@@ -48,12 +48,12 @@ var buildQS = require('build-qs');
           </th>
           <th>名称</th>
           <th>图片</th>
-          <th class="{ sortBy.name === 'spu_cnt' && 'sorted ' + \{'asc': 'ascending', 'desc': 'descending'\}[sortBy.order]  }" onclick={ sortHandlers['spu_cnt'] }>
+          <th class="{ sortBy.name === 'spu_cnt'? 'sorted ' + \{'asc': 'ascending', 'desc': 'descending'\}[sortBy.order]: 'sorted unordered'  }" onclick={ sortHandlers['spu_cnt'] }>
             <a href="#">
               产品数量
             </a>
           </th>
-          <th class="{ sortBy.name === 'weight' && 'sorted ' + \{'asc': 'ascending', 'desc': 'descending'\}[sortBy.order]  }" onclick={ sortHandlers.weight }>
+          <th class="{ sortBy.name === 'weight'? 'sorted ' + \{'asc': 'ascending', 'desc': 'descending'\}[sortBy.order]: 'sorted unordered'  }" onclick={ sortHandlers.weight }>
             <a href="#">
               权重
             </a>
@@ -177,7 +177,18 @@ var buildQS = require('build-qs');
             }
           });
         }
-
+      },
+      processOpts: function () {
+        self.sortBy = function (sortBy) {
+          if (!sortBy) {
+            return {};
+          }
+          sortBy = sortBy.split('.');
+          return {
+            name: sortBy[0],
+            order: sortBy[1] || 'asc',
+          }
+        }(opts.ctx.query.sortBy);
       },
       selected: new Set(),
     });
@@ -199,16 +210,7 @@ var buildQS = require('build-qs');
     });
 
     self.on('mount', function () {
-      self.sortBy = function (sortBy) {
-        if (!sortBy) {
-          return {};
-        }
-        sortBy = sortBy.split('.');
-        return {
-          name: sortBy[0],
-          order: sortBy[1] || 'asc',
-        }
-      }(opts.ctx.query.sortBy);
+      self.processOpts();
       $(self.root).find('[data-content]').popup();
       $(self.root).find('.only.enabled.checkbox').checkbox({
         onChange: function () {
@@ -263,16 +265,9 @@ var buildQS = require('build-qs');
         bus.trigger('go', opts.ctx.path);
       });
     });
-    self.doSearch = function () {
-      var allItems;
-      return function (e) {
-        !allItems && (allItems = self.items);
-        var needle = $(e.target).val().toLowerCase();
-        self.items = allItems.filter(function (item) {
-          return ~item.name.toLowerCase().indexOf(needle);
-        });
-        self.update();
-      };
-    }();
+    self.doSearch = function (e) {
+      opts.ctx.query.kw = encodeURIComponent($(e.target).val());
+      bus.trigger('go', '/spu/spu-type-list?' + buildQS(opts.ctx.query));
+    };
   </script>
 </spu-type-list-app>

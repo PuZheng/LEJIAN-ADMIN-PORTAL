@@ -55,7 +55,8 @@ var login = function (ctx, next) {
 
 var spuTypeList = function (ctx, next) {
     bus.register(spuTypeStore);
-    riot.mount('#main', 'spu-type-list-app', { ctx: ctx });
+    workspace.app = riot.mount('#main', 'spu-type-list-app', { ctx: ctx })[0];
+    workspace.appName = 'spu-type-list';
     bus.trigger('spuType.list.fetch', ctx.query);
 };
 
@@ -82,14 +83,23 @@ page(function (ctx, next) {
     if (qs) {
         qs.split('&').forEach(function(v) {
             var c = v.split('=');
-            ctx.query[camelCase(c[0])] = Array.prototype.concat.apply([], c.slice(1)).join('=');
+            ctx.query[camelCase(c[0])] = decodeURIComponent(Array.prototype.concat.apply([], c.slice(1)).join('='));
         });
     }
     next();
 });
 
 page('/auth/login', resetStores, navBar, login);
-page('/spu/spu-type-list', resetStores, loginRequired, navBar, spuTypeList);
+page('/spu/spu-type-list', function (ctx, next) {
+    if (workspace.app && workspace.appName === 'spu-type-list') {
+        workspace.app.opts = { ctx: ctx };
+        workspace.app.processOpts();
+        workspace.app.update();
+        bus.trigger('spuType.list.fetch', ctx.query);
+    } else {
+        next();
+    }
+}, resetStores, loginRequired, navBar, spuTypeList);
 page('/spu/spu-type/', resetStores, loginRequired, navBar, spuType);
 page('/spu/spu-type/:id', resetStores, loginRequired, navBar, spuType);
 page('/', '/spu/spu-type-list');

@@ -37,6 +37,11 @@ SPUTypeStore.prototype.fetchList = function (query) {
                 return item.enabled;
             });
         }
+        if (query.kw) {
+            items = items.filter(function (item) {
+                return ~item.name.toLowerCase().indexOf(query.kw.toLowerCase());
+            });
+        }
         return items;
     };
     if (this.items) {
