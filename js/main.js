@@ -2,6 +2,7 @@ var riot = require('riot');
 var page = require('page');
 var authStore = require('stores/auth.js');
 var spuTypeStore = require('stores/spu-type.js');
+var spuStore = require('stores/spu.js');
 var assetStore = require('stores/asset.js');
 var bus = require('riot-bus');
 var camelCase = require('camelcase');
@@ -60,6 +61,13 @@ var spuTypeList = function (ctx, next) {
     bus.trigger('spuType.list.fetch', ctx.query);
 };
 
+var spuList = function (ctx, next) {
+    bus.register(spuStore);
+    workspace.app = riot.mount('#main', 'spu-list-app', { ctx: ctx })[0];
+    workspace.appName = 'spu-list';
+    bus.trigger('spu.list.fetch', ctx.query);
+};
+
 var navBar = function (ctx, next) {
     riot.mount('#nav-bar', 'nav-bar', {
         ctx: ctx
@@ -81,6 +89,7 @@ page(function (ctx, next) {
     ctx.query = {};
 
     if (qs) {
+        // there's a potential bug, see https://github.com/visionmedia/page.js/issues/216
         qs.split('&').forEach(function(v) {
             var c = v.split('=');
             ctx.query[camelCase(c[0])] = decodeURIComponent(Array.prototype.concat.apply([], c.slice(1)).join('='));
@@ -91,7 +100,7 @@ page(function (ctx, next) {
 
 page('/auth/login', resetStores, navBar, login);
 page('/spu/spu-type-list', function (ctx, next) {
-    if (workspace.app && workspace.appName === 'spu-type-list') {
+    if (workspace.appName === 'spu-type-list') {
         workspace.app.opts = { ctx: ctx };
         workspace.app.processOpts();
         workspace.app.update();
@@ -100,7 +109,13 @@ page('/spu/spu-type-list', function (ctx, next) {
         next();
     }
 }, resetStores, loginRequired, navBar, spuTypeList);
-page('/spu/spu-type/', resetStores, loginRequired, navBar, spuType);
+page('/spu/spu-list', function (ctx, next) {
+    if (workspace.appName === 'spu-list') {
+        workspace.app.opts = { ctx: ctx };
+        workspace.app.processOpts();
+        workspace.app.update();
+    }
+}, resetStores, loginRequired, navBar, spuList);
 page('/spu/spu-type/:id', resetStores, loginRequired, navBar, spuType);
 page('/', '/spu/spu-type-list');
 
