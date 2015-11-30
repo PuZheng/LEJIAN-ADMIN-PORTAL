@@ -11,11 +11,23 @@ require('tags/login-app.tag');
 require('tags/spu-type-list-app.tag');
 require('tags/nav-bar.tag');
 require('tags/spu-type-app.tag');
+require('tags/spu-list-app.tag');
 
 var swal = require('sweetalert/sweetalert.min.js');
 require('sweetalert/sweetalert.css');
 var principal = require('principal');
 
+// see https://github.com/riot/riot/issues/871
+riot.util.tmpl.errorHandler = function (err) {
+    console.error(err);
+};
+
+var setTitle = function (title) {
+    return function (ctx, next) {
+        document.title = title;
+        next();
+    };
+};
 
 var workspace = {
     stores: [],
@@ -28,7 +40,7 @@ workspace.on('login.required logout.done', function () {
 }).on('go', function (target) {
     page.show(target);
 }).on('error', function (err) {
-    throw err;
+    console.error(err);
 });
 
 var resetStores = function (ctx, next) {
@@ -65,6 +77,8 @@ var spuList = function (ctx, next) {
     bus.register(spuStore);
     workspace.app = riot.mount('#main', 'spu-list-app', { ctx: ctx })[0];
     workspace.appName = 'spu-list';
+    ctx.query.page = ctx.query.page || 1;
+    ctx.query.perPage = ctx.query.perPage || 12;
     bus.trigger('spu.list.fetch', ctx.query);
 };
 
@@ -99,8 +113,9 @@ page(function (ctx, next) {
 });
 
 page('/auth/login', resetStores, navBar, login);
-page('/spu/spu-type-list', function (ctx, next) {
+page('/spu-type-list', function (ctx, next) {
     if (workspace.appName === 'spu-type-list') {
+        // only update
         workspace.app.opts = { ctx: ctx };
         workspace.app.processOpts();
         workspace.app.update();
@@ -108,15 +123,21 @@ page('/spu/spu-type-list', function (ctx, next) {
     } else {
         next();
     }
-}, resetStores, loginRequired, navBar, spuTypeList);
-page('/spu/spu-list', function (ctx, next) {
+}, resetStores, loginRequired, navBar, setTitle('乐鉴-SPU分类列表'), spuTypeList);
+
+page('/spu-list', function (ctx, next) {
     if (workspace.appName === 'spu-list') {
+        // only update
         workspace.app.opts = { ctx: ctx };
         workspace.app.processOpts();
         workspace.app.update();
+        bus.trigger('spu.list.fetch', ctx.query);
+    } else {
+        next();
     }
-}, resetStores, loginRequired, navBar, spuList);
-page('/spu/spu-type/:id', resetStores, loginRequired, navBar, spuType);
-page('/', '/spu/spu-type-list');
+}, resetStores, loginRequired, navBar, setTitle('乐鉴-SPU列表'), spuList);
+
+page('/spu-type/:id', resetStores, loginRequired, navBar, spuType);
+page('/', '/spu-list');
 
 page();

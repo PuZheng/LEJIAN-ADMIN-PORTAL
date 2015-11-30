@@ -12,15 +12,15 @@ require('magnific-popup/jquery.magnific-popup.js');
 var buildQS = require('build-qs');
 
 <spu-type-list-app>
-  <div class="ui page grid">
-    <div class="ui top attached info segment">
+  <div class="ui grid">
+    <div class="ui top attached info message segment">
       <div class="ui header">
         SPU类型列表
       </div>
-      <a class="ui icon green circular button" href="/spu/spu-type" data-content="创建SPU分类">
+      <a class="ui tiny icon green circular button" href="/spu/spu-type" data-content="创建SPU分类">
         <i class="icon plus"></i>
       </a>
-      <a class="ui icon red circular button" href="#" data-content="删除SPU分类" onclick={ delete }>
+      <a class="ui tiny icon red circular button" href="#" data-content="删除SPU分类" onclick={ delete }>
         <i class="icon trash"></i>
       </a>
     </div>
@@ -69,7 +69,7 @@ var buildQS = require('build-qs');
               </div>
             </td>
             <td>
-              <a href="/spu/spu-type/{ item.id }">
+              <a href="/spu-type/{ item.id }">
                 { item.name }
               </a>
             </td>
@@ -96,10 +96,6 @@ var buildQS = require('build-qs');
 
     .top.segment > div {
       display: inline-block !important;
-    }
-
-    .top.segment > .button {
-      margin-left: 1rem;
     }
 
     .item .description > div {
@@ -205,7 +201,7 @@ var buildQS = require('build-qs');
         } else {
           query.sortBy += '.asc';
         }
-        bus.trigger('go', '/spu/spu-type-list?' + buildQS(query));
+        bus.trigger('go', '/spu-type-list?' + buildQS(query));
       };
     });
 
@@ -216,7 +212,7 @@ var buildQS = require('build-qs');
         onChange: function () {
           var query = opts.ctx.query;
           query.onlyEnabled = $(this).is(':checked')? 1: 0;
-          bus.trigger('go', '/spu/spu-type-list?' + buildQS(query), opts.ctx.state);
+          bus.trigger('go', '/spu-type-list?' + buildQS(query), opts.ctx.state);
         },
       });
     }).on('updated', function () {
@@ -242,20 +238,6 @@ var buildQS = require('build-qs');
     }).on('spuType.list.fetched', function (data) {
       self.items = data.data;
       self.update();
-      $(self.root).find('.item .ui.checkbox').checkbox({
-        onChange: function () {
-          var id = $(this).data('item-id');
-          var patch = {
-            enabled: $(this).is(':checked')
-          };
-          var item = self.items.filter(function (item) {
-            return item.id === id;
-          })[0];
-          bus.trigger('spuType.update', _.extend({}, item), patch);
-          _.assign(item, patch);
-          self.update();
-        }
-      });
     }).on('spuType.deleted', function () {
       swal({
         type: 'success',
@@ -267,7 +249,7 @@ var buildQS = require('build-qs');
     });
     self.doSearch = function (e) {
       opts.ctx.query.kw = encodeURIComponent($(e.target).val());
-      bus.trigger('go', '/spu/spu-type-list?' + buildQS(opts.ctx.query));
+      bus.trigger('go', '/spu-type-list?' + buildQS(opts.ctx.query));
     };
   </script>
 </spu-type-list-app>
