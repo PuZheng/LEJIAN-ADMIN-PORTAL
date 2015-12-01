@@ -12,7 +12,7 @@ require('magnific-popup/jquery.magnific-popup.js');
 var buildQS = require('build-qs');
 
 <spu-type-list-app>
-  <div class="ui grid">
+  <div class="ui grid list">
     <div class="ui top attached info message segment">
       <div class="ui header">
         SPU类型列表
@@ -24,7 +24,7 @@ var buildQS = require('build-qs');
         <i class="icon trash"></i>
       </a>
     </div>
-    <div class="ui attached segment ops">
+    <div class="ui attached segment filters">
       <div class="ui search">
         <div class="ui icon input">
           <input class="prompt" type="text" placeholder="输入名称" name="search" onkeyup={ doSearch } value={ opts.ctx.query.kw }>
@@ -88,29 +88,6 @@ var buildQS = require('build-qs');
       </table>
     </div>
   </div>
-  <style scoped>
-    .image {
-      width: 96px !important;
-      height: 96px !important;
-    }
-
-    .top.segment > div {
-      display: inline-block !important;
-    }
-
-    .item .description > div {
-      margin-left: 2rem;
-      display: inline-block;
-    }
-
-    .ops.attached.segment > div {
-      margin-left: 1rem;
-      display: inline-block;
-    }
-    table thead th:first-child, table tbody td:first-child {
-      text-align: center;
-    }
-  </style>
   <script>
     var self = this;
     this.mixin(bus.Mixin);

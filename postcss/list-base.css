@@ -1,0 +1,29 @@
+.grid.list {
+    .image {
+      width: 96px !important;
+      height: 96px !important;
+    }
+
+    .top.segment > * {
+      display: inline-block;
+    }
+
+    table thead th:first-child, table tbody td:first-child {
+      text-align: center;
+    }
+
+    .item .description > div {
+      margin-left: 2rem;
+      display: inline-block;
+    }
+
+    .filters.segment > div {
+      margin-left: 1rem;
+      display: inline-block;
+    }
+
+    .bottom.fixed.menu {
+      justify-content: center;
+    }
+
+}

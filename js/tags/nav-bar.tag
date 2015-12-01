@@ -9,8 +9,8 @@ var page = require('page');
       <i class="dropdown icon"></i>
       SPU相关
       <div class="menu">
-        <a class="item { opts.ctx.pathname === '/spu/spu-type-list' && 'active' }" href="/spu/spu-type-list">SPU类型管理</a>
-        <a class="item { opts.ctx.pathname === '/spu/spu-list' && 'active' }" href="/spu/spu-list">SPU管理</a>
+        <a class="item { opts.ctx.pathname === '/spu-type-list' && 'active' }" href="/spu-type-list">SPU类型管理</a>
+        <a class="item { opts.ctx.pathname === '/spu-list' && 'active' }" href="/spu-list">SPU管理</a>
       </div>
     </div>
     <div class="right menu" if={ opts.ctx.user }>

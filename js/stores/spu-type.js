@@ -19,6 +19,7 @@ var SPUTypeStore = function () {
 };
 
 SPUTypeStore.prototype.fetchList = function (query) {
+    var d = $.Deferred();
     bus.trigger('spuType.list.fetching');
     var setupItems = function (query, items) {
         if (query.sortBy) {
@@ -45,22 +46,28 @@ SPUTypeStore.prototype.fetchList = function (query) {
         return items;
     };
     if (this.items) {
-        bus.trigger('spuType.list.fetched', {
-            data: setupItems(query, this.items),
-        });
+        var data = {
+            data: setupItems(query, this.items)
+        };
+        bus.trigger('spuType.list.fetched', data);
         bus.trigger('spuType.list.fetch.done');
+        d.resolve(data);
     } else {
         request('/spu/spu-type-list').done(function (res) {
             this.items = res.body.data;
-            bus.trigger('spuType.list.fetched', {
+            var data = {
                 data: setupItems(query, this.items)
-            });
+            };
+            bus.trigger('spuType.list.fetched', data);
             bus.trigger('spuType.list.fetch.done');
+            d.resolve(data);
         }.bind(this)).fail(function (err, res) {
             bus.trigger('spuType.list.fetch.failed', err);
             bus.trigger('spuType.list.fetch.done');
+            d.reject(err);
         });
     }
+    return d;
 };
 
 SPUTypeStore.prototype.update = function (item, patch) {

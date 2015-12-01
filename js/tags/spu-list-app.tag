@@ -11,7 +11,7 @@ require('tags/sortable-th.tag');
 require('tags/paginator.tag');
 
 <spu-list-app>
-  <div class="ui grid">
+  <div class="ui grid list">
     <div class="ui top attached blue message segment">
       <div class="ui header">
         SPU列表
@@ -23,9 +23,53 @@ require('tags/paginator.tag');
         <i class="icon trash"></i>
       </a>
     </div>
-    <div class="ui attached segment">
+    <div class="ui attached segment filters">
+      <div class="ui search">
+        <div class="ui icon input">
+          <input class="prompt" type="text" placeholder="输入名称" name="search" onkeyup={ doSearch } value={ opts.ctx.query.kw }>
+          <i class="search icon"></i>
+        </div>
+        <div class="results"></div>
+      </div>
+        <div class="only enabled ui checkbox">
+          <input type="checkbox" name="" checked={ opts.ctx.query.onlyEnabled === '1' }>
+          <label for="">仅展示激活产品</label>
+        </div>
+        <div class="vendor ui selection dropdown">
+          <input type="hidden" name="gender" value=0>
+          <i class="dropdown icon"></i>
+          <div class="default text">选择厂商</div>
+          <div class="menu">
+            <div class="item" data-value=0>-- 不限厂商 --</div>
+            <div each={ vendors } class="item" data-value={ id }>{ name }</div>
+          </div>
+        </div>
+        <div class="spu-type ui selection dropdown">
+          <input type="hidden" name="spu_type" value=0>
+          <i class="dropdown icon"></i>
+          <div class="default text">选择分类</div>
+          <div class="menu">
+            <div class="item" data-value=0>-- 不限分类 --</div>
+            <div each={ spuTypes } class="item" data-value={ id }>{ name }</div>
+          </div>
+        </div>
+        <div class="rating ui selection dropdown">
+          <input type="hidden" name="rating" value=0>
+          <i class="dropdown icon"></i>
+          <div class="default text">评分</div>
+          <div class="menu">
+            <div class="item" data-value="0">-- 不限评分 --</div>
+            <div class="item" data-value="1">1</div>
+            <div class="item" data-value="2">2</div>
+            <div class="item" data-value="3">3</div>
+            <div class="item" data-value="4">4</div>
+            <div class="item" data-value="5">5</div>
+          </div>
+        </div>
+    </div>
+    <div class="ui bottom attached segment">
       <loader if={ loading }></loader>
-      <table class="ui sortable compact striped table" if={ !loading && items }>
+      <table class="ui sortable compact striped table" if={ !loading && !_.isEmpty(items) }>
         <thead>
           <tr>
             <th>
@@ -86,7 +130,7 @@ require('tags/paginator.tag');
           </tr>
         </tbody>
       <table>
-      <div class="ui teal message" if={ !loading && !items }>
+      <div class="ui teal message" if={ !loading && _.isEmpty(items) }>
         -- 没有数据 --
       </div>
     </div>
@@ -94,17 +138,6 @@ require('tags/paginator.tag');
       <paginator pagination={ pagination } url-for={ urlFor } if={ pagination }></paginator>
     </div>
   </div>
-  <style scoped>
-    .bottom.fixed.menu {
-      justify-content: center;
-    }
-    .top.attached.segment > * {
-      display: inline-block;
-    }
-    table thead th:first-child, table tbody td:first-child {
-      text-align: center;
-    }
-  </style>
   <script>
     var self = this;
     self.mixin(bus.Mixin);
@@ -153,6 +186,7 @@ require('tags/paginator.tag');
     self.on('mount', function () {
       self.processOpts();
       $(self.root).find('[data-content]').popup();
+      $(self.root).find('.rating.dropdown').dropdown();
     }).on('spu.list.fetchding', function () {
       self.loading = true;
       self.update();
@@ -182,7 +216,14 @@ require('tags/paginator.tag');
           self.selected.delete($(this).data('id'));
         }
       });
-
+    }).on('vendor.list.fetched', function (data) {
+      self.vendors = data.data;
+      self.update();
+      $(self.root).find('.vendor.dropdown').dropdown();
+    }).on('spuType.list.fetched', function (data) {
+      self.spuTypes = data.data;
+      self.update();
+      $(self.root).find('.spu-type.dropdown').dropdown();
     }).on('error', function (err) {
       console.error(err);
     });

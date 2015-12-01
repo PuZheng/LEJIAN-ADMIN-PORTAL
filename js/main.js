@@ -4,8 +4,10 @@ var authStore = require('stores/auth.js');
 var spuTypeStore = require('stores/spu-type.js');
 var spuStore = require('stores/spu.js');
 var assetStore = require('stores/asset.js');
+var vendorStore = require('stores/vendor.js');
 var bus = require('riot-bus');
 var camelCase = require('camelcase');
+var config = require('config');
 
 require('tags/login-app.tag');
 require('tags/spu-type-list-app.tag');
@@ -18,9 +20,11 @@ require('sweetalert/sweetalert.css');
 var principal = require('principal');
 
 // see https://github.com/riot/riot/issues/871
-riot.util.tmpl.errorHandler = function (err) {
-    console.error(err);
-};
+if (config.env === 'development') {
+    riot.util.tmpl.errorHandler = function (err) {
+        console.error(err);
+    };
+}
 
 var setTitle = function (title) {
     return function (ctx, next) {
@@ -79,7 +83,9 @@ var spuList = function (ctx, next) {
     workspace.appName = 'spu-list';
     ctx.query.page = ctx.query.page || 1;
     ctx.query.perPage = ctx.query.perPage || 12;
-    bus.trigger('spu.list.fetch', ctx.query);
+    spuStore.fetchList(ctx.query);
+    vendorStore.fetchList();
+    spuTypeStore.fetchList({});
 };
 
 var navBar = function (ctx, next) {
