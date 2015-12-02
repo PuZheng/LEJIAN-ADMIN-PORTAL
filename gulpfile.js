@@ -6,6 +6,9 @@ var WebpackDevServer = require('webpack-dev-server');
 var data = require('gulp-data');
 var template = require('gulp-template');
 var rename = require('gulp-rename');
+var postcss = require('gulp-postcss');
+var precss = require('precss');
+var livereload = require('gulp-livereload');
 
 gulp.task('template-compile', function () {
     var config = require('./convict-def.js');
@@ -15,7 +18,9 @@ gulp.task('template-compile', function () {
 });
 
 gulp.task('watch', function () {
+    livereload.listen();
     gulp.watch(['js/config.js.tpl', 'convict-def.js'], ['template-compile']);
+    gulp.watch('postcss/*.css', ['css']);
 });
 
 gulp.task('webpack:build-dev', function(callback) {
@@ -89,4 +94,34 @@ gulp.task('default', ['template-compile', 'watch', 'webpack-dev-server']);
 gulp.task('test', function () {
     return gulp.src('test/test-auth.html')
     .pipe(require('gulp-mocha-phantomjs')());
+});
+
+gulp.task('css', function () {
+    gulp.src('postcss/*.css').pipe(postcss([precss])).pipe(gulp.dest('./css')).pipe(livereload());
+});
+
+
+var rollup = require('gulp-rollup');
+var sourcemaps = require('gulp-sourcemaps');
+var commonjs = require('rollup-plugin-commonjs');
+var npm = require('rollup-plugin-npm');
+
+gulp.task('bundle', function(){
+  gulp.src('js/test.js', {read: false})
+    .pipe(rollup({
+        // any option supported by rollup can be set here, including sourceMap
+
+        plugins: [
+            npm({
+                jsnext: true,
+                main: true
+            }),
+            commonjs({
+                include: 'node_modules/*',
+            })
+        ],
+        sourceMap: true
+    }))
+    .pipe(sourcemaps.write(".")) // this only works if the sourceMap option is true
+    .pipe(gulp.dest('dist'));
 });

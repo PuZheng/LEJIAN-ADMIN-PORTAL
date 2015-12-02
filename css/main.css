@@ -281,3 +281,8 @@ textarea {
 #main {
     padding-top: 4rem;
 }
+
+
+.ui.sortable.table thead th.unordered:after {
+    content: '\F0DC';
+}

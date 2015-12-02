@@ -4,8 +4,6 @@ var config = require('config');
 var urljoin = require('url-join');
 var request = require('request');
 
-require('semantic-ui/semantic.css');
-require('semantic-ui/semantic.min.js');
 require('tags/loader.tag');
 require('tags/centered-image.tag');
 var toastr = require('toastr/toastr.min.js');

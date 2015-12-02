@@ -19,6 +19,7 @@ var SPUTypeStore = function () {
 };
 
 SPUTypeStore.prototype.fetchList = function (query) {
+    var d = $.Deferred();
     bus.trigger('spuType.list.fetching');
     var setupItems = function (query, items) {
         if (query.sortBy) {
@@ -37,25 +38,36 @@ SPUTypeStore.prototype.fetchList = function (query) {
                 return item.enabled;
             });
         }
+        if (query.kw) {
+            items = items.filter(function (item) {
+                return ~item.name.toLowerCase().indexOf(query.kw.toLowerCase());
+            });
+        }
         return items;
     };
     if (this.items) {
-        bus.trigger('spuType.list.fetched', {
-            data: setupItems(query, this.items),
-        });
+        var data = {
+            data: setupItems(query, this.items)
+        };
+        bus.trigger('spuType.list.fetched', data);
         bus.trigger('spuType.list.fetch.done');
+        d.resolve(data);
     } else {
         request('/spu/spu-type-list').done(function (res) {
             this.items = res.body.data;
-            bus.trigger('spuType.list.fetched', {
+            var data = {
                 data: setupItems(query, this.items)
-            });
+            };
+            bus.trigger('spuType.list.fetched', data);
             bus.trigger('spuType.list.fetch.done');
+            d.resolve(data);
         }.bind(this)).fail(function (err, res) {
             bus.trigger('spuType.list.fetch.failed', err);
             bus.trigger('spuType.list.fetch.done');
+            d.reject(err);
         });
     }
+    return d;
 };
 
 SPUTypeStore.prototype.update = function (item, patch) {
@@ -81,17 +93,21 @@ SPUTypeStore.prototype.fetch = function (id) {
 };
 
 SPUTypeStore.prototype.delete = function (ids) {
+    var d = $.Deferred();
     bus.trigger('spuType.deleting');
-    request.delete('/spu/spu-type-list/?ids=' + ids.join(',')).done(function (res) {
+    request.delete('/spu/spu-type-list?ids=' + ids.join(',')).done(function (res) {
         this.items = this.items.filter(function (item) {
             return ids.indexOf(item.id) === -1;
         });
         bus.trigger('spuType.deleted', ids, res.body);
         bus.trigger('spuType.delete.done');
+        d.resolve(ids, res.body);
     }.bind(this)).fail(function (err, res) {
         bus.trigger('spuType.delete.failed', ids, err);
         bus.trigger('spuType.delete.done');
+        d.reject(err);
     });
+    return d;
 };
 
 SPUTypeStore.prototype.create = function (data) {

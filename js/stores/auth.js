@@ -52,6 +52,7 @@ Auth.prototype.authenticated = function () {
 };
 
 Auth.prototype.user = function () {
+    this._user = this._user || JSON.parse(sessionStorage.getItem('user'));
     return this._user;
 };
 

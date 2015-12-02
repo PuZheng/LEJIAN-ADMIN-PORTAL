@@ -1,6 +1,4 @@
 var riot = require('riot');
-require('semantic-ui/semantic.css');
-require('semantic-ui/semantic.min.js');
 var bus = require('riot-bus');
 var config = require('config');
 var urljoin = require('url-join');
@@ -12,19 +10,19 @@ require('magnific-popup/jquery.magnific-popup.js');
 var buildQS = require('build-qs');
 
 <spu-type-list-app>
-  <div class="ui page grid">
-    <div class="ui top attached info segment">
+  <div class="ui grid list">
+    <div class="ui top attached info message segment">
       <div class="ui header">
         SPU类型列表
       </div>
-      <a class="ui icon green circular button" href="/spu/spu-type" data-content="创建SPU分类">
+      <a class="ui tiny icon green circular button" href="/spu/spu-type" data-content="创建SPU分类">
         <i class="icon plus"></i>
       </a>
-      <a class="ui icon red circular button" href="#" data-content="删除SPU分类" onclick={ delete }>
+      <a class="ui tiny icon red circular button" href="#" data-content="删除SPU分类" onclick={ delete }>
         <i class="icon trash"></i>
       </a>
     </div>
-    <div class="ui attached segment ops">
+    <div class="ui attached segment filters">
       <div class="ui search">
         <div class="ui icon input">
           <input class="prompt" type="text" placeholder="输入名称" name="search" onkeyup={ doSearch } value={ opts.ctx.query.kw }>
@@ -48,12 +46,12 @@ var buildQS = require('build-qs');
           </th>
           <th>名称</th>
           <th>图片</th>
-          <th class="{ sortBy.name === 'spu_cnt' && 'sorted ' + \{'asc': 'ascending', 'desc': 'descending'\}[sortBy.order]  }" onclick={ sortHandlers['spu_cnt'] }>
+          <th class="{ sortBy.name === 'spu_cnt'? 'sorted ' + \{'asc': 'ascending', 'desc': 'descending'\}[sortBy.order]: 'sorted unordered'  }" onclick={ sortHandlers['spu_cnt'] }>
             <a href="#">
               产品数量
             </a>
           </th>
-          <th class="{ sortBy.name === 'weight' && 'sorted ' + \{'asc': 'ascending', 'desc': 'descending'\}[sortBy.order]  }" onclick={ sortHandlers.weight }>
+          <th class="{ sortBy.name === 'weight'? 'sorted ' + \{'asc': 'ascending', 'desc': 'descending'\}[sortBy.order]: 'sorted unordered'  }" onclick={ sortHandlers.weight }>
             <a href="#">
               权重
             </a>
@@ -69,7 +67,7 @@ var buildQS = require('build-qs');
               </div>
             </td>
             <td>
-              <a href="/spu/spu-type/{ item.id }">
+              <a href="/spu-type/{ item.id }">
                 { item.name }
               </a>
             </td>
@@ -88,33 +86,6 @@ var buildQS = require('build-qs');
       </table>
     </div>
   </div>
-  <style scoped>
-    .image {
-      width: 96px !important;
-      height: 96px !important;
-    }
-
-    .top.segment > div {
-      display: inline-block !important;
-    }
-
-    .top.segment > .button {
-      margin-left: 1rem;
-    }
-
-    .item .description > div {
-      margin-left: 2rem;
-      display: inline-block;
-    }
-
-    .ops.attached.segment > div {
-      margin-left: 1rem;
-      display: inline-block;
-    }
-    table thead th:first-child, table tbody td:first-child {
-      text-align: center;
-    }
-  </style>
   <script>
     var self = this;
     this.mixin(bus.Mixin);
@@ -177,7 +148,18 @@ var buildQS = require('build-qs');
             }
           });
         }
-
+      },
+      processOpts: function () {
+        self.sortBy = function (sortBy) {
+          if (!sortBy) {
+            return {};
+          }
+          sortBy = sortBy.split('.');
+          return {
+            name: sortBy[0],
+            order: sortBy[1] || 'asc',
+          }
+        }(opts.ctx.query.sortBy);
       },
       selected: new Set(),
     });
@@ -194,27 +176,18 @@ var buildQS = require('build-qs');
         } else {
           query.sortBy += '.asc';
         }
-        bus.trigger('go', '/spu/spu-type-list?' + buildQS(query));
+        bus.trigger('go', '/spu-type-list?' + buildQS(query));
       };
     });
 
     self.on('mount', function () {
-      self.sortBy = function (sortBy) {
-        if (!sortBy) {
-          return {};
-        }
-        sortBy = sortBy.split('.');
-        return {
-          name: sortBy[0],
-          order: sortBy[1] || 'asc',
-        }
-      }(opts.ctx.query.sortBy);
+      self.processOpts();
       $(self.root).find('[data-content]').popup();
       $(self.root).find('.only.enabled.checkbox').checkbox({
         onChange: function () {
           var query = opts.ctx.query;
           query.onlyEnabled = $(this).is(':checked')? 1: 0;
-          bus.trigger('go', '/spu/spu-type-list?' + buildQS(query), opts.ctx.state);
+          bus.trigger('go', '/spu-type-list?' + buildQS(query), opts.ctx.state);
         },
       });
     }).on('updated', function () {
@@ -226,7 +199,7 @@ var buildQS = require('build-qs');
         onUnchecked: function () {
           $(self.root).find('.ui.select.checkbox').checkbox('uncheck');
         }
-      });
+      }).checkbox('set unchecked');
       $(self.root).find('.ui.select.checkbox').checkbox({
         onChecked: function () {
           self.selected.add($(this).data('id'));
@@ -240,20 +213,6 @@ var buildQS = require('build-qs');
     }).on('spuType.list.fetched', function (data) {
       self.items = data.data;
       self.update();
-      $(self.root).find('.item .ui.checkbox').checkbox({
-        onChange: function () {
-          var id = $(this).data('item-id');
-          var patch = {
-            enabled: $(this).is(':checked')
-          };
-          var item = self.items.filter(function (item) {
-            return item.id === id;
-          })[0];
-          bus.trigger('spuType.update', _.extend({}, item), patch);
-          _.assign(item, patch);
-          self.update();
-        }
-      });
     }).on('spuType.deleted', function () {
       swal({
         type: 'success',
@@ -263,16 +222,9 @@ var buildQS = require('build-qs');
         bus.trigger('go', opts.ctx.path);
       });
     });
-    self.doSearch = function () {
-      var allItems;
-      return function (e) {
-        !allItems && (allItems = self.items);
-        var needle = $(e.target).val().toLowerCase();
-        self.items = allItems.filter(function (item) {
-          return ~item.name.toLowerCase().indexOf(needle);
-        });
-        self.update();
-      };
-    }();
+    self.doSearch = function (e) {
+      opts.ctx.query.kw = encodeURIComponent($(e.target).val());
+      bus.trigger('go', '/spu-type-list?' + buildQS(opts.ctx.query));
+    };
   </script>
 </spu-type-list-app>
