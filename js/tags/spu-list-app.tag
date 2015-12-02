@@ -12,6 +12,7 @@ require('tags/sortable-th.tag');
 require('tags/paginator.tag');
 require('tags/dropdown.tag');
 require('tags/checkbox.tag');
+require('tags/search.tag');
 
 <spu-list-app>
   <div class="ui grid list">
@@ -27,13 +28,7 @@ require('tags/checkbox.tag');
       </a>
     </div>
     <div class="ui attached segment filters">
-      <div class="ui search">
-        <div class="ui icon input">
-          <input class="prompt" type="text" placeholder="输入名称" name="search" value={ opts.ctx.query.kw }>
-          <i class="search icon"></i>
-        </div>
-        <div class="results"></div>
-      </div>
+      <div riot-tag="search" placeholder="输入SPU名称" value={ opts.ctx.query.kw } backend={ urlJoin(config.backend, '/spu/auto-complete/{query}') } on-submit={ onSearchSubmit } on-select={ onSearchSelect }></div>
       <div riot-tag="checkbox" checked={ opts.ctx.query.onlyEnabled === '1' } label="仅展示激活产品" on-change={ filterHandlers.onlyEnabled }></div>
       <div riot-tag="dropdown" items={ vendors } on-change={ filterHandlers.vendor } default-text="厂商" name="vendor" value={ opts.ctx.query.vendor }></div>
       <div riot-tag="dropdown" items={ spuTypes } on-change={ filterHandlers.spuType } default-text="分类"
@@ -139,6 +134,16 @@ require('tags/checkbox.tag');
       sortHandlers: {},
       filterHandlers: {},
       selected: new Set(),
+      onSearchSubmit: function (kw) {
+          var query = self.opts.ctx.query;
+          query.kw = kw;
+          bus.trigger('go', '/spu-list?' + buildQS(query));
+      },
+      onSearchSelect: function (result) {
+          var query = self.opts.ctx.query;
+          query.kw = result.title;
+          bus.trigger('go', '/spu-list?' + buildQS(query));
+      },
       deleteHandlers: function () {
         var selected = Array.from(self.selected);
         if (!selected.length) {
@@ -204,24 +209,6 @@ require('tags/checkbox.tag');
     self.on('mount', function () {
       self.processOpts();
       $(self.root).find('[data-content]').popup();
-      $(self.root).find('.ui.search').search({
-        apiSettings: {
-          url: urlJoin(config.backend, '/spu/auto-complete/{query}'),
-        },
-        minCharacters: 2,
-        onSelect: function (result) {
-          var query = self.opts.ctx.query;
-          query.kw = result.title;
-          bus.trigger('go', '/spu-list?' + buildQS(query));
-        },
-      });
-      $(self.root).find('.ui.search input').keyup(function (e) {
-        if (e.keyCode === 13) {
-          var query = self.opts.ctx.query;
-          query.kw = $(e.target).val();
-          bus.trigger('go', '/spu-list?' + buildQS(query));
-        }
-      });
     }).on('spu.list.fetchding', function () {
       self.loading = true;
       self.update();
