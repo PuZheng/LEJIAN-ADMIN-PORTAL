@@ -2,8 +2,6 @@ var riot = require('riot');
 var loader = require('./loader.tag');
 var bus = require('riot-bus');
 var page = require('page');
-require('semantic-ui/semantic.css');
-require('semantic-ui/semantic.min.js');
 
 <login-app>
   <div class="ui page grid">

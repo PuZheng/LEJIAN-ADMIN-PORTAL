@@ -8,6 +8,7 @@ var vendorStore = require('stores/vendor.js');
 var bus = require('riot-bus');
 var camelCase = require('camelcase');
 var config = require('config');
+require('semantic-ui/semantic.js');
 
 require('tags/login-app.tag');
 require('tags/spu-type-list-app.tag');

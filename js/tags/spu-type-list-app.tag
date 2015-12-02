@@ -1,6 +1,4 @@
 var riot = require('riot');
-require('semantic-ui/semantic.css');
-require('semantic-ui/semantic.min.js');
 var bus = require('riot-bus');
 var config = require('config');
 var urljoin = require('url-join');
@@ -201,7 +199,7 @@ var buildQS = require('build-qs');
         onUnchecked: function () {
           $(self.root).find('.ui.select.checkbox').checkbox('uncheck');
         }
-      });
+      }).checkbox('set unchecked');
       $(self.root).find('.ui.select.checkbox').checkbox({
         onChecked: function () {
           self.selected.add($(this).data('id'));

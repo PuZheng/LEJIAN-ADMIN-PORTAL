@@ -93,17 +93,21 @@ SPUTypeStore.prototype.fetch = function (id) {
 };
 
 SPUTypeStore.prototype.delete = function (ids) {
+    var d = $.Deferred();
     bus.trigger('spuType.deleting');
-    request.delete('/spu/spu-type-list/?ids=' + ids.join(',')).done(function (res) {
+    request.delete('/spu/spu-type-list?ids=' + ids.join(',')).done(function (res) {
         this.items = this.items.filter(function (item) {
             return ids.indexOf(item.id) === -1;
         });
         bus.trigger('spuType.deleted', ids, res.body);
         bus.trigger('spuType.delete.done');
+        d.resolve(ids, res.body);
     }.bind(this)).fail(function (err, res) {
         bus.trigger('spuType.delete.failed', ids, err);
         bus.trigger('spuType.delete.done');
+        d.reject(err);
     });
+    return d;
 };
 
 SPUTypeStore.prototype.create = function (data) {
