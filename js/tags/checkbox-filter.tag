@@ -1,3 +1,13 @@
+// display checkbox as a list filter, when checked/unchecked, will
+// send "go" event with the updated path to bus
+// opts:
+//     checked - see tag 'checkbox'
+//     label - see tag 'checkbox'
+//     name - see tag 'checkbox', note, it should be decamelized, like "a_b"
+//     ctx - context provided by page.js
+// Example:
+//     <checkbox-filter checked="checked" label="只看未读邮件" name="only_unread" ctx={ ctx }></checkbox-filter>
+
 var riot = require('riot');
 var bus = require('riot-bus');
 var buildQS = require('build-qs');
@@ -6,7 +16,7 @@ require('tags/checkbox.tag');
 
 <checkbox-filter>
   <div riot-tag="checkbox" checked={ opts.checked }
-    label={ opts.label } name='only_enabled' options={ options }>
+    label={ opts.label } name={ opts.name } options={ options }>
   </div>
   <script>
     self.options = {

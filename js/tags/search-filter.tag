@@ -1,3 +1,14 @@
+// display a search as a filter, when select an option or perform submit, a
+// 'go' event with updated url will be sent to bus
+// opts:
+//     placeholder - see tag 'search'
+//     value - see tag 'search'
+//     ctx - context provided by page.js
+//     name - input name, used in updated url, like 'kw', note, it should be decamelized
+//     backend - where to load the auto complete hints, refer to semantic ui.
+// example:
+//     <search-filter placeholder="请输入用户名" backend="/user/auto-complete/{query}" kw="user_name" ctx={ ctx } value={ ctx.query.userName }></search-filter>
+
 var riot = require('riot');
 var bus = require('riot-bus');
 var camelCase = require('camelcase');
