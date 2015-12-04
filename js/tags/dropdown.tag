@@ -13,14 +13,10 @@ var riot = require('riot');
     var self = this;
     self.on('updated', function () {
       if (!_.isEmpty(opts.items) && !self.initialized) {
-        $(self.root).dropdown({
-          onChange: function (value, text, $choice) {
-            if (!value) {
-              $(this).dropdown('clear');
-            }
-            opts.onChange && opts.onChange.apply(this, arguments);
-          }
-        });
+        var $dropdown = $(self.root).dropdown(opts.options || {});
+        if (!$dropdown.dropdown('get value')) {
+          $dropdown.dropdown('clear');
+        }
         self.initialized = true;
       }
     });

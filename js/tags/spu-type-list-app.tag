@@ -8,6 +8,7 @@ require('toastr/toastr.min.css');
 require('magnific-popup/magnific-popup.css');
 require('magnific-popup/jquery.magnific-popup.js');
 var buildQS = require('build-qs');
+require('tags/sortable-th.tag');
 
 <spu-type-list-app>
   <div class="ui grid list">
@@ -46,11 +47,7 @@ var buildQS = require('build-qs');
           </th>
           <th>名称</th>
           <th>图片</th>
-          <th class="{ sortBy.name === 'spu_cnt'? 'sorted ' + \{'asc': 'ascending', 'desc': 'descending'\}[sortBy.order]: 'sorted unordered'  }" onclick={ sortHandlers['spu_cnt'] }>
-            <a href="#">
-              产品数量
-            </a>
-          </th>
+          <th riot-tag="sortable-th" label="产品数量" sort-by={ sortBy } name="spu_cnt"></th>
           <th class="{ sortBy.name === 'weight'? 'sorted ' + \{'asc': 'ascending', 'desc': 'descending'\}[sortBy.order]: 'sorted unordered'  }" onclick={ sortHandlers.weight }>
             <a href="#">
               权重
@@ -164,10 +161,10 @@ var buildQS = require('build-qs');
       selected: new Set(),
     });
 
-    ['weight', 'spu_cnt'].forEach(function (field) {
+    ['weight', 'spuCnt'].forEach(function (field) {
       self.sortHandlers[field] = function () {
         var query = opts.ctx.query;
-        query.sortBy = field;
+        query.sortBy = decamelize(field);
         if (self.sortBy.name === field) {
           query.sortBy += '.' + {
             'asc': 'desc',
