@@ -111,14 +111,11 @@ require('tags/batch-delete-btn.tag');
     _.extend(self, {
       urlJoin: urlJoin,
       config: config,
-      processOpts: function () {
-      },
       moment: moment,
       selected: new Set(),
     });
 
     self.on('mount', function () {
-      self.processOpts();
       $(self.root).find('[data-content]').popup();
     }).on('spu.list.fetchding', function () {
       self.loading = true;
