@@ -21,6 +21,7 @@ gulp.task('watch', function () {
     livereload.listen();
     gulp.watch(['js/config.js.tpl', 'convict-def.js'], ['template-compile']);
     gulp.watch('postcss/*.css', ['css']);
+    gulp.watch('js/tags/*.tmpl', ['render']);
 });
 
 gulp.task('webpack:build-dev', function(callback) {
@@ -124,4 +125,17 @@ gulp.task('bundle', function(){
     }))
     .pipe(sourcemaps.write(".")) // this only works if the sourceMap option is true
     .pipe(gulp.dest('dist'));
+});
+
+var nunjucksRender = require('gulp-nunjucks-render');
+
+gulp.task('render', function () {
+    return gulp.src(['js/tags/vendor-table.tag.tmpl']).pipe(data(function () {
+        return {
+            'tag_name': 'vendor-table',
+        };
+    }))
+        .pipe(nunjucksRender()).pipe(rename(function (path) {
+            path.extname = '';
+        })).pipe(gulp.dest('js/tags/')).pipe(livereload());
 });

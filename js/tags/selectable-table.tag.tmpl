@@ -1,0 +1,31 @@
+var riot = require('riot');
+
+{% block require_list %}
+{% endblock %}
+
+<{{ tag_name }}>
+    <table class="ui sortable compact striped table">
+    <thead class="full-width">
+        <th>
+        <div class="select-all ui checkbox">
+            <input type="checkbox">
+            <label for=""></label>
+        </div>
+        </th>
+        {% block th_list %}
+        {% endblock %}
+    </thead>
+    <tbody class="full-width">
+        <tr each={ item in items } data-item-id={ item.id }>
+        <td>
+            <div class="select ui checkbox">
+            <input type="checkbox" data-id={ item.id }>
+            <label for=""></label>
+            </div>
+        </td>
+        {% block td_list %}
+        {% endblock %}
+        </tr>
+    </tbody>
+    </table>
+</{{ tag_name }}>

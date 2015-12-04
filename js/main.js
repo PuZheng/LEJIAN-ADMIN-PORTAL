@@ -15,6 +15,7 @@ require('tags/spu-type-list-app.tag');
 require('tags/nav-bar.tag');
 require('tags/spu-type-app.tag');
 require('tags/spu-list-app.tag');
+require('tags/vendor-list-app.tag');
 
 var swal = require('sweetalert/sweetalert.min.js');
 require('sweetalert/sweetalert.css');
@@ -89,6 +90,13 @@ var spuList = function (ctx, next) {
     spuTypeStore.fetchList({});
 };
 
+var vendorList = function (ctx, next) {
+    bus.register(vendorStore);
+    workspace.app = riot.mount('#main', 'vendor-list-app', { ctx: ctx })[0];
+    workspace.appName = 'vendor-list';
+    vendorStore.fetchList(ctx.query);
+};
+
 var navBar = function (ctx, next) {
     riot.mount('#nav-bar', 'nav-bar', {
         ctx: ctx
@@ -123,7 +131,6 @@ page('/auth/login', resetStores, navBar, login);
 page('/spu-type-list', function (ctx, next) {
     if (workspace.appName === 'spu-type-list') {
         // only update
-        workspace.app.opts = { ctx: ctx };
         workspace.app.update();
         bus.trigger('spuType.list.fetch', ctx.query);
     } else {
@@ -134,13 +141,21 @@ page('/spu-type-list', function (ctx, next) {
 page('/spu-list', function (ctx, next) {
     if (workspace.appName === 'spu-list') {
         // only update
-        workspace.app.opts = { ctx: ctx };
         workspace.app.update();
         bus.trigger('spu.list.fetch', ctx.query);
     } else {
         next();
     }
 }, resetStores, loginRequired, navBar, setTitle('乐鉴-SPU列表'), spuList);
+
+page('/vendor-list', function (ctx, next) {
+    if (workspace.appName === 'vendor-list') {
+        workspace.app.update();
+        bus.trigger('vendor.list.fetch', ctx.query);
+    } else {
+        next();
+    }
+}, resetStores, loginRequired, navBar, setTitle('乐鉴-厂商列表'), vendorList);
 
 page('/spu-type/:id', resetStores, loginRequired, navBar, spuType);
 page('/', '/spu-list');
