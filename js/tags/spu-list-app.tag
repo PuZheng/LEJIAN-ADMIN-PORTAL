@@ -10,9 +10,10 @@ var decamelize = require('decamelize');
 var buildQS = require('build-qs');
 require('tags/sortable-th.tag');
 require('tags/paginator.tag');
-require('tags/dropdown.tag');
-require('tags/checkbox.tag');
-require('tags/search.tag');
+require('tags/dropdown-filter.tag');
+require('tags/checkbox-filter.tag');
+require('tags/search-filter.tag');
+require('tags/batch-delete-btn.tag');
 
 <spu-list-app>
   <div class="ui grid list">
@@ -23,17 +24,15 @@ require('tags/search.tag');
       <a class="ui tiny icon circular green button" href="/spu" data-content="创建SPU">
         <i class="icon plus"></i>
       </a>
-      <a class="ui tiny icon circular red button" href="#" data-content="删除SPU" onclick={ deleteHandlers }>
-        <i class="icon trash"></i>
-      </a>
+      <a riot-tag="batch-delete-btn" ids={ selected } data-content="删除SPU" event="spu.delete"></a>
     </div>
     <div class="ui attached segment filters">
-      <div riot-tag="search" placeholder="输入SPU名称" value={ opts.ctx.query.kw } backend={ urlJoin(config.backend, '/spu/auto-complete/{query}') } on-submit={ onSearchSubmit } on-select={ onSearchSelect }></div>
-      <div riot-tag="checkbox" checked={ opts.ctx.query.onlyEnabled === '1' } label="仅展示激活产品" on-change={ filterHandlers.onlyEnabled }></div>
-      <div riot-tag="dropdown" items={ vendors } on-change={ filterHandlers.vendor } default-text="厂商" name="vendor" value={ opts.ctx.query.vendor }></div>
-      <div riot-tag="dropdown" items={ spuTypes } on-change={ filterHandlers.spuType } default-text="分类"
-        name="spu_type" value={ opts.ctx.query.spuType }></div>
-      <div riot-tag="dropdown" items={ [1, 2, 3, 4, 5] } on-change={ filterHandlers.rating } default-text="评分" name="rating" value={ opts.ctx.query.rating }></div>
+      <div riot-tag="search-filter" placeholder="输入SPU名称" value={ opts.ctx.query.kw } backend={ urlJoin(config.backend, '/spu/auto-complete/{query}') } ctx={ opts.ctx } name="kw"></div>
+      <div riot-tag="checkbox-filter" checked={ opts.ctx.query.onlyEnabled === '1' } label="仅展示激活产品" ctx={ opts.ctx } name='only_enabled'></div>
+      <div riot-tag="dropdown-filter" items={ vendors } default-text="厂商" name="vendor" value={ opts.ctx.query.vendor } ctx={ opts.ctx }></div>
+      <div riot-tag="dropdown-filter" items={ spuTypes } default-text="分类"
+        name="spu_type" value={ opts.ctx.query.spuType } ctx={ opts.ctx }></div>
+      <div riot-tag="dropdown-filter" items={ [1, 2, 3, 4, 5] } default-text="评分" name="rating" value={ opts.ctx.query.rating } ctx={ opts.ctx }></div>
     </div>
     <div class="ui bottom attached segment">
       <loader if={ loading }></loader>
@@ -46,16 +45,16 @@ require('tags/search.tag');
                 <label for=""></label>
               </div>
             </th>
-            <th riot-tag="sortable-th" sort-by={ sortBy } label="编号" name="id" onclick={ sortHandlers.id }></th>
+            <th riot-tag="sortable-th" label="编号" name="id" ctx={ opts.ctx }></th>
             <th>封面</th>
             <th>名称</th>
             <th>激活</th>
-            <th riot-tag="sortable-th" sort-by={ sortBy } label="零售价" name="msrp" onclick={ sortHandlers.msrp }>
+            <th riot-tag="sortable-th" label="零售价" name="msrp" ctx={ opts.ctx }>
             </th>
             <th>厂商</th>
             <th>分类</th>
-            <th riot-tag="sortable-th" sort-by={ sortBy } label="评分" name="rating" onclick={ sortHandlers.rating }></th>
-            <th riot-tag="sortable-th" sort-by={ sortBy } label="创建时间" name="createTime" onclick={ sortHandlers.createTime }></th>
+            <th riot-tag="sortable-th" label="评分" name="rating" ctx={ opts.ctx }></th>
+            <th riot-tag="sortable-th" label="创建时间" name="create_time" ctx={ opts.ctx }></th>
           </tr>
         </thead>
         <tbody>
@@ -103,7 +102,7 @@ require('tags/search.tag');
       </div>
     </div>
     <div class="ui bottom fixed menu">
-      <paginator pagination={ pagination } url-for={ urlFor } if={ pagination }></paginator>
+      <paginator pagination={ pagination } if={ pagination } ctx={ opts.ctx }></paginator>
     </div>
   </div>
   <script>
@@ -112,99 +111,11 @@ require('tags/search.tag');
     _.extend(self, {
       urlJoin: urlJoin,
       config: config,
-      urlFor: function (page) {
-        var query = _.assign({}, self.opts.ctx.query);
-        query.page = page;
-        return '/spu-list?' + buildQS(_.assign(query));
-      },
       processOpts: function () {
-        self.currentPage = self.opts.ctx.query.page || 1;
-        self.perPage = self.opts.ctx.query.perPage || 12;
-        var sortBy = self.opts.ctx.query.sortBy;
-        if (sortBy) {
-          sortBy = sortBy.toLowerCase().split('.');
-          self.sortBy = {
-            name: sortBy[0] || 'id',
-            order: sortBy[1] || 'asc',
-          }
-        }
       },
-      sortBy: {},
       moment: moment,
-      sortHandlers: {},
-      filterHandlers: {},
       selected: new Set(),
-      onSearchSubmit: function (kw) {
-          var query = self.opts.ctx.query;
-          query.kw = kw;
-          bus.trigger('go', '/spu-list?' + buildQS(query));
-      },
-      onSearchSelect: function (result) {
-          var query = self.opts.ctx.query;
-          query.kw = result.title;
-          bus.trigger('go', '/spu-list?' + buildQS(query));
-      },
-      deleteHandlers: function () {
-        var selected = Array.from(self.selected);
-        if (!selected.length) {
-          swal({
-            type: 'info',
-            title: '',
-            text: '请至少选择一个对象',
-          });
-        } else {
-          swal({
-            type: 'warning',
-            title: '',
-            text: '您确认要删除选中的对象?',
-            showCancelButton: true,
-            closeOnConfirm: false,
-          }, function (confirmed) {
-            if (confirmed) {
-              bus.trigger('spu.delete', selected);
-            }
-          });
-        }
-      }
     });
-
-    ['id', 'msrp', 'rating', 'createTime'].forEach(function (col) {
-      col = decamelize(col);
-      self.sortHandlers[col] = function () {
-        var query = self.opts.ctx.query;
-        if (self.sortBy.name === col) {
-          query.sortBy = col + '.' + {
-            desc: 'asc',
-            asc: 'desc'
-          }[self.sortBy.order];
-        } else {
-          query.sortBy = col + '.asc';
-        }
-        bus.trigger('go', '/spu-list?' + buildQS(query));
-      };
-    });
-    ['rating', 'spuType', 'vendor'].forEach(function (col) {
-      self.filterHandlers[col] = function (value, text, $choice) {
-        var query = self.opts.ctx.query;
-        if (value) {
-          query[col] = value;
-        } else {
-          delete query[col];
-        }
-        bus.trigger('go', '/spu-list?' + buildQS(query));
-      };
-    });
-
-    self.filterHandlers.onlyEnabled = function () {
-      var checked = $(this).is(':checked');
-      var query = self.opts.ctx.query;
-      if (checked) {
-        query.onlyEnabled = 1;
-      } else {
-        delete query.onlyEnabled;
-      }
-      bus.trigger('go', '/spu-list?' + buildQS(query));
-    };
 
     self.on('mount', function () {
       self.processOpts();
@@ -217,8 +128,8 @@ require('tags/search.tag');
       self.totalCnt = data.totalCnt;
       self.loading = false;
       self.pagination = new Pagination({
-        currentPage: self.currentPage,
-        perPage: self.perPage,
+        currentPage: self.opts.ctx.query.page || 1,
+        perPage: self.opts.ctx.query.perPage || 12,
         totalCount: self.totalCnt,
       });
       self.update();

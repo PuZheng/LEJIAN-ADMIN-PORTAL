@@ -10,13 +10,7 @@ var riot = require('riot');
   <script>
     var self = this;
     self.on('mount', function () {
-      $(self.root).search({
-        apiSettings: {
-          url: opts.backend,
-        },
-        minCharacters: 2,
-        onSelect: opts.onSelect,
-      });
+      $(self.root).search(opts.options || {});
       $(self.root).find('input').keyup(function (e) {
         if (e.keyCode === 13) {
           opts.onSubmit && opts.onSubmit.call(this, $(e.target).val());

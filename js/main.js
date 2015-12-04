@@ -23,7 +23,7 @@ var principal = require('principal');
 // see https://github.com/riot/riot/issues/871
 if (config.env === 'development') {
     riot.util.tmpl.errorHandler = function (err) {
-        console.error(err);
+        // console.error(err);
     };
 }
 
