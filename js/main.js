@@ -124,7 +124,6 @@ page('/spu-type-list', function (ctx, next) {
     if (workspace.appName === 'spu-type-list') {
         // only update
         workspace.app.opts = { ctx: ctx };
-        workspace.app.processOpts();
         workspace.app.update();
         bus.trigger('spuType.list.fetch', ctx.query);
     } else {
@@ -136,7 +135,6 @@ page('/spu-list', function (ctx, next) {
     if (workspace.appName === 'spu-list') {
         // only update
         workspace.app.opts = { ctx: ctx };
-        workspace.app.processOpts();
         workspace.app.update();
         bus.trigger('spu.list.fetch', ctx.query);
     } else {

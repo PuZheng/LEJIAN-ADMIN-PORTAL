@@ -9,6 +9,7 @@ require('magnific-popup/magnific-popup.css');
 require('magnific-popup/jquery.magnific-popup.js');
 var buildQS = require('build-qs');
 require('tags/sortable-th.tag');
+require('tags/checkbox-filter.tag');
 
 <spu-type-list-app>
   <div class="ui grid list">
@@ -19,9 +20,7 @@ require('tags/sortable-th.tag');
       <a class="ui tiny icon green circular button" href="/spu/spu-type" data-content="创建SPU分类">
         <i class="icon plus"></i>
       </a>
-      <a class="ui tiny icon red circular button" href="#" data-content="删除SPU分类" onclick={ delete }>
-        <i class="icon trash"></i>
-      </a>
+      <a riot-tag="batch-delete-btn" data-content="删除SPU分类" handler={ delete }></a>
     </div>
     <div class="ui attached segment filters">
       <div class="ui search">
@@ -31,10 +30,8 @@ require('tags/sortable-th.tag');
         </div>
         <div class="results"></div>
       </div>
-      <div class="only enabled ui checkbox">
-        <input type="checkbox" name="" checked={ opts.ctx.query.onlyEnabled === '1' }>
-        <label for="">仅展示激活类型</label>
-      </div>
+
+      <div riot-tag="checkbox-filter" checked={ opts.ctx.onlyEnabled === '1' } label="仅展示激活" name="only_enabled" ctx={ opts.ctx }></div>
     </div>
     <div class="ui bottom attached segment" if={ items }>
       <table class="ui sortable compact striped table">
@@ -45,14 +42,11 @@ require('tags/sortable-th.tag');
               <label for=""></label>
             </div>
           </th>
+          <th riot-tag="sortable-th" label="编号" name="id" ctx={ opts.ctx }></th>
           <th>名称</th>
           <th>图片</th>
-          <th riot-tag="sortable-th" label="产品数量" sort-by={ sortBy } name="spu_cnt"></th>
-          <th class="{ sortBy.name === 'weight'? 'sorted ' + \{'asc': 'ascending', 'desc': 'descending'\}[sortBy.order]: 'sorted unordered'  }" onclick={ sortHandlers.weight }>
-            <a href="#">
-              权重
-            </a>
-          </th>
+          <th riot-tag="sortable-th" label="产品数量" name="spu_cnt" ctx={ opts.ctx }></th>
+          <th riot-tag="sortable-th" label="权重" name="weight" ctx={ opts.ctx }></th>
           <th>是否激活</th>
         </thead>
         <tbody class="full-width">
@@ -65,8 +59,11 @@ require('tags/sortable-th.tag');
             </td>
             <td>
               <a href="/spu-type/{ item.id }">
-                { item.name }
+                { item.id }
               </a>
+            </td>
+            <td>
+              { item.name }
             </td>
             <td>
               <a href={ urljoin(config.backend, item.picPath) } class="image-link">
@@ -110,7 +107,6 @@ require('tags/sortable-th.tag');
           };
         }
       },
-      sortHandlers: {},
       delete: function () {
         var selected = Array.from(self.selected);
         if (!selected.length) {
@@ -120,6 +116,7 @@ require('tags/sortable-th.tag');
             text: '请至少选择一个SPU类型',
           });
         } else {
+          debugger;
           if (selected.some(function (id) {
             var item = self.items.filter(function (item) {
               return item.id === parseInt(id);
@@ -146,47 +143,12 @@ require('tags/sortable-th.tag');
           });
         }
       },
-      processOpts: function () {
-        self.sortBy = function (sortBy) {
-          if (!sortBy) {
-            return {};
-          }
-          sortBy = sortBy.split('.');
-          return {
-            name: sortBy[0],
-            order: sortBy[1] || 'asc',
-          }
-        }(opts.ctx.query.sortBy);
-      },
       selected: new Set(),
-    });
-
-    ['weight', 'spuCnt'].forEach(function (field) {
-      self.sortHandlers[field] = function () {
-        var query = opts.ctx.query;
-        query.sortBy = decamelize(field);
-        if (self.sortBy.name === field) {
-          query.sortBy += '.' + {
-            'asc': 'desc',
-            'desc': 'asc'
-          }[self.sortBy.order];
-        } else {
-          query.sortBy += '.asc';
-        }
-        bus.trigger('go', '/spu-type-list?' + buildQS(query));
-      };
     });
 
     self.on('mount', function () {
       self.processOpts();
       $(self.root).find('[data-content]').popup();
-      $(self.root).find('.only.enabled.checkbox').checkbox({
-        onChange: function () {
-          var query = opts.ctx.query;
-          query.onlyEnabled = $(this).is(':checked')? 1: 0;
-          bus.trigger('go', '/spu-type-list?' + buildQS(query), opts.ctx.state);
-        },
-      });
     }).on('updated', function () {
       $(self.root).find('a.image-link').magnificPopup({type:'image'});
       $(self.root).find('.ui.select-all').checkbox({
@@ -220,7 +182,12 @@ require('tags/sortable-th.tag');
       });
     });
     self.doSearch = function (e) {
-      opts.ctx.query.kw = encodeURIComponent($(e.target).val());
+      var kw = $(e.target).val();
+      if (kw) {
+        opts.ctx.query.kw = encodeURIComponent(kw);
+      } else {
+        delete opts.ctx.query.kw;
+      }
       bus.trigger('go', '/spu-type-list?' + buildQS(opts.ctx.query));
     };
   </script>
