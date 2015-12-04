@@ -1,7 +1,14 @@
+// 批量删除对象按钮， 用于列表中
+// opts:
+//    ids - type: Set; list of ids of items to be deleted
+//    event - the event triggered when performing delete
+
+
 var riot = require('riot');
 var bus = require('riot-bus');
 var swal = require('sweetalert/sweetalert.min.js');
 require('sweetalert/sweetalert.css');
+
 
 <batch-delete-btn class="ui tiny icon circular red button" onclick={ handler }>
   <i class="icon trash"></i>

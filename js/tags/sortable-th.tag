@@ -1,3 +1,13 @@
+// display th in a list, send 'go' event with updated url (which sort ths list by a certain column) to bus when clicked.
+// opts:
+//     label - text displayed in th
+//     name - column name in url, like "id"
+//     ctx - context provide by page.js
+// example:
+//     <th riot-tag="sortable-th" label="重量" name="weight" ctx={ ctx }></th>
+// note:
+//     to avoid the wrapping "sortable-th" element, you should use "th" element with riot-tag attribute set to "sortable-th"
+
 var riot = require('riot');
 var bus = require('riot-bus');
 var buildQS = require('build-qs');
