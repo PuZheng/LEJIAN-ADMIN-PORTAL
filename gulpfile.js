@@ -21,7 +21,7 @@ gulp.task('watch', function () {
     livereload.listen();
     gulp.watch(['js/config.js.tpl', 'convict-def.js'], ['template-compile']);
     gulp.watch('postcss/*.css', ['css']);
-    gulp.watch('js/tags/*.tmpl', ['render']);
+    gulp.watch('js/tags/*.tag.tmpl', ['render']);
 });
 
 gulp.task('webpack:build-dev', function(callback) {
@@ -132,7 +132,8 @@ var nunjucksRender = require('gulp-nunjucks-render');
 gulp.task('render', function () {
     return gulp.src(['js/tags/vendor-table.tag.tmpl']).pipe(data(function () {
         return {
-            'tag_name': 'vendor-table',
+            'listFetchEvent': 'vendor.list.fetched',
+            'tagName': 'vendor-table',
         };
     }))
         .pipe(nunjucksRender()).pipe(rename(function (path) {

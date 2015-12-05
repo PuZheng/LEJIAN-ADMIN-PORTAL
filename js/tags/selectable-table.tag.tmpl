@@ -1,31 +1,65 @@
 var riot = require('riot');
+var bus = require('riot-bus');
 
 {% block require_list %}
+    //add your requirements here
 {% endblock %}
 
-<{{ tag_name }}>
-    <table class="ui sortable compact striped table">
+<{{ tagName }}>
+  <table class="ui sortable compact striped table">
     <thead class="full-width">
-        <th>
+      <th>
         <div class="select-all ui checkbox">
-            <input type="checkbox">
-            <label for=""></label>
+          <input type="checkbox">
+          <label for=""></label>
         </div>
-        </th>
-        {% block th_list %}
-        {% endblock %}
+      </th>
+      {% block th_list %}
+      {% endblock %}
     </thead>
     <tbody class="full-width">
-        <tr each={ item in items } data-item-id={ item.id }>
+      <tr each={ item in items } data-item-id={ item.id }>
         <td>
-            <div class="select ui checkbox">
+          <div class="select ui checkbox">
             <input type="checkbox" data-id={ item.id }>
             <label for=""></label>
-            </div>
+          </div>
         </td>
         {% block td_list %}
         {% endblock %}
-        </tr>
+      </tr>
     </tbody>
-    </table>
-</{{ tag_name }}>
+  </table>
+  <script>
+    var self = this;
+    self.mixin(bus.Mixin);
+    self.selected = new Set();
+
+    self.on('{{ listFetchEvent }}', function (data) {
+      self.items = data.data;
+      self.update();
+
+      $(self.root).find('.select-all.checkbox').checkbox({
+        onChecked: function () {
+          $(self.root).find('.ui.select.checkbox').checkbox('check');
+        },
+        onUnchecked: function () {
+          $(self.root).find('.ui.select.checkbox').checkbox('uncheck');
+        }
+      }).checkbox('set unchecked');
+
+      $(self.root).find('.ui.select.checkbox').checkbox({
+        onChecked: function () {
+          self.selected.add($(this).data('id'));
+        },
+        onUnchecked: function () {
+          self.selected.delete($(this).data('id'));
+        }
+      });
+    });
+  </script>
+
+  {% block scripts %}
+    <!-- add your scripts here -->
+  {% endblock %}
+</{{ tagName }}>
