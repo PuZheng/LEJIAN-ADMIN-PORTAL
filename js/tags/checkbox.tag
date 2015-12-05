@@ -1,7 +1,7 @@
 var riot = require('riot');
 
 <checkbox class="ui checkbox">
-  <input type="checkbox" name={ opts.name } checked={ opts.checked }>
+  <input type="checkbox" name={ opts.name } checked={ opts.checked_ }>
   <label for="">{ opts.label }</label>
   <script>
     var self = this;

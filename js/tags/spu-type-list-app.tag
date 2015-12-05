@@ -25,13 +25,13 @@ require('tags/checkbox-filter.tag');
     <div class="ui attached segment filters">
       <div class="ui search">
         <div class="ui icon input">
-          <input class="prompt" type="text" placeholder="输入名称" name="search" onkeyup={ doSearch } value={ opts.ctx.query.kw }>
+          <input class="prompt" type="text" placeholder="按名称过滤" name="search" onkeyup={ doSearch } value={ opts.ctx.query.kw }>
           <i class="search icon"></i>
         </div>
         <div class="results"></div>
       </div>
 
-      <div riot-tag="checkbox-filter" checked={ opts.ctx.onlyEnabled === '1' } label="仅展示激活" name="only_enabled" ctx={ opts.ctx }></div>
+      <div riot-tag="checkbox-filter" checked_={ opts.ctx.query.onlyEnabled === '1' } label="仅展示激活" name="only_enabled" ctx={ opts.ctx }></div>
     </div>
     <div class="ui bottom attached segment" if={ items }>
       <table class="ui sortable compact striped table">

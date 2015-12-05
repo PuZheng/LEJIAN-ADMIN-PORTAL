@@ -28,7 +28,7 @@ require('tags/batch-delete-btn.tag');
     </div>
     <div class="ui attached segment filters">
       <div riot-tag="search-filter" placeholder="输入SPU名称" value={ opts.ctx.query.kw } backend={ urlJoin(config.backend, '/spu/auto-complete/{query}') } ctx={ opts.ctx } name="kw"></div>
-      <div riot-tag="checkbox-filter" checked={ opts.ctx.query.onlyEnabled === '1' } label="仅展示激活产品" ctx={ opts.ctx } name='only_enabled'></div>
+      <div riot-tag="checkbox-filter" checked_={ opts.ctx.query.onlyEnabled === '1' } label="仅展示激活产品" ctx={ opts.ctx } name='only_enabled'></div>
       <div riot-tag="dropdown-filter" items={ vendors } default-text="厂商" name="vendor" value={ opts.ctx.query.vendor } ctx={ opts.ctx }></div>
       <div riot-tag="dropdown-filter" items={ spuTypes } default-text="分类"
         name="spu_type" value={ opts.ctx.query.spuType } ctx={ opts.ctx }></div>

@@ -47,8 +47,7 @@ Auth.prototype.logout = function (emailOrName, password) {
 };
 
 Auth.prototype.authenticated = function () {
-    this._user = this._user || JSON.parse(sessionStorage.getItem('user'));
-    return !!this._user;
+    return !!this.user();
 };
 
 Auth.prototype.user = function () {
