@@ -14,9 +14,11 @@ require('tags/dropdown-filter.tag');
 require('tags/checkbox-filter.tag');
 require('tags/search-filter.tag');
 require('tags/batch-delete-btn.tag');
+require('tags/spu-table.tag');
 
 <spu-list-app>
   <div class="ui grid list">
+    <loader if={ loading }></loader>
     <div class="ui top attached blue message segment">
       <div class="ui header">
         SPU列表
@@ -24,7 +26,7 @@ require('tags/batch-delete-btn.tag');
       <a class="ui tiny icon circular green button" href="/spu" data-content="创建SPU">
         <i class="icon plus"></i>
       </a>
-      <a riot-tag="batch-delete-btn" ids={ selected } data-content="删除SPU" event="spu.delete"></a>
+      <a riot-tag="batch-delete-btn" ids={ tags['spu-table'].selected } data-content="删除SPU" event="spu.delete"></a>
     </div>
     <div class="ui attached segment filters">
       <div riot-tag="search-filter" placeholder="输入SPU名称" value={ opts.ctx.query.kw } backend={ urlJoin(config.backend, '/spu/auto-complete/{query}') } ctx={ opts.ctx } name="kw"></div>
@@ -35,71 +37,7 @@ require('tags/batch-delete-btn.tag');
       <div riot-tag="dropdown-filter" items={ [1, 2, 3, 4, 5] } default-text="评分" name="rating" value={ opts.ctx.query.rating } ctx={ opts.ctx }></div>
     </div>
     <div class="ui bottom attached segment">
-      <loader if={ loading }></loader>
-      <table class="ui sortable compact striped table" if={ !loading && !_.isEmpty(items) }>
-        <thead>
-          <tr>
-            <th>
-              <div class="select-all ui checkbox">
-                <input type="checkbox">
-                <label for=""></label>
-              </div>
-            </th>
-            <th riot-tag="sortable-th" label="编号" name="id" ctx={ opts.ctx }></th>
-            <th>封面</th>
-            <th>名称</th>
-            <th>激活</th>
-            <th riot-tag="sortable-th" label="零售价" name="msrp" ctx={ opts.ctx }>
-            </th>
-            <th>厂商</th>
-            <th>分类</th>
-            <th riot-tag="sortable-th" label="评分" name="rating" ctx={ opts.ctx }></th>
-            <th riot-tag="sortable-th" label="创建时间" name="create_time" ctx={ opts.ctx }></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr each={items}>
-            <td>
-              <div class="select ui checkbox">
-                <input type="checkbox" data-id={ id }>
-                <label for=""></label>
-              </div>
-            </td>
-            <td>
-              <a href="/spu/{ id }">{ id }</a>
-            </td>
-            <td>
-              <div class="ui tiny image">
-                <img src="{ urlJoin(config.backend, icon) }" alt="">
-              </div>
-            </td>
-            <td>
-              { name }
-            </td>
-            <td>
-              <i class="icon { enabled? 'green checkmark': 'red remove' }"></i>
-            </td>
-            <td>
-              { msrp }
-            </td>
-            <td>
-              <a href="/vendor/{ vendorId }">{ vendor.name }</a>
-            </td>
-            <td>
-              <a href="/spu-type/{ spuTypeId }">{ spuType.name }</a>
-            </td>
-            <td>
-              { rating }
-            </td>
-            <td>
-              { moment(createTime).format('YY-MM-DD HH时') }
-            </td>
-          </tr>
-        </tbody>
-      <table>
-      <div class="ui teal message" if={ !loading && _.isEmpty(items) }>
-        -- 没有数据 --
-      </div>
+      <spu-table ctx={ opts.ctx }></spu-table>
     </div>
     <div class="ui bottom fixed menu">
       <paginator pagination={ pagination } if={ pagination } ctx={ opts.ctx }></paginator>
@@ -112,12 +50,11 @@ require('tags/batch-delete-btn.tag');
       urlJoin: urlJoin,
       config: config,
       moment: moment,
-      selected: new Set(),
     });
 
     self.on('mount', function () {
       $(self.root).find('[data-content]').popup();
-    }).on('spu.list.fetchding', function () {
+    }).on('spu.list.fetching spu.list.deleting', function () {
       self.loading = true;
       self.update();
     }).on('spu.list.fetched', function (data) {
@@ -130,22 +67,6 @@ require('tags/batch-delete-btn.tag');
         totalCount: self.totalCnt,
       });
       self.update();
-      $(self.root).find('.select-all.checkbox').checkbox({
-        onChecked: function () {
-          $(self.root).find('.ui.select.checkbox').checkbox('check');
-        },
-        onUnchecked: function () {
-          $(self.root).find('.ui.select.checkbox').checkbox('uncheck');
-        }
-      }).checkbox('set unchecked');
-      $(self.root).find('.ui.select.checkbox').checkbox({
-        onChecked: function () {
-          self.selected.add($(this).data('id'));
-        },
-        onUnchecked: function () {
-          self.selected.delete($(this).data('id'));
-        }
-      });
     }).on('vendor.list.fetched', function (data) {
       self.vendors = data.data && data.data.map(function (v) {
         return [v.id, v.name];
