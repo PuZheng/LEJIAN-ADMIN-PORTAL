@@ -5,6 +5,7 @@ var spuTypeStore = require('stores/spu-type.js');
 var spuStore = require('stores/spu.js');
 var assetStore = require('stores/asset.js');
 var vendorStore = require('stores/vendor.js');
+var retailerStore = require('stores/retailer.js');
 var bus = require('riot-bus');
 var camelCase = require('camelcase');
 var config = require('config');
@@ -16,6 +17,7 @@ require('tags/nav-bar.tag');
 require('tags/spu-type-app.tag');
 require('tags/spu-list-app.tag');
 require('tags/vendor-list-app.tag');
+require('tags/retailer-list-app.tag');
 
 var swal = require('sweetalert/sweetalert.min.js');
 require('sweetalert/sweetalert.css');
@@ -97,6 +99,13 @@ var vendorList = function (ctx, next) {
     vendorStore.fetchList(ctx.query);
 };
 
+var retailerList = function (ctx, next) {
+    bus.register(retailerStore);
+    workspace.app = riot.mount('#main', 'retailer-list-app', { ctx: ctx })[0];
+    workspace.appName = 'retailer-list';
+    retailerStore.fetchList(ctx.query);
+};
+
 var navBar = function (ctx, next) {
     riot.mount('#nav-bar', 'nav-bar', {
         ctx: ctx
@@ -156,6 +165,15 @@ page('/vendor-list', function (ctx, next) {
         next();
     }
 }, resetStores, loginRequired, navBar, setTitle('乐鉴-厂商列表'), vendorList);
+
+page('/retailer-list', function (ctx, next) {
+    if (workspace.appName === 'retailer-list') {
+        workspace.app.update();
+        bus.trigger('retailer.list.fetch', ctx.query);
+    } else {
+        next();
+    }
+}, resetStores, loginRequired, navBar, setTitle('乐鉴-零售商列表'), retailerList);
 
 page('/spu-type/:id', resetStores, loginRequired, navBar, spuType);
 page('/', '/spu-list');
