@@ -1,18 +1,17 @@
 var riot = require('riot');
 var bus = require('riot-bus');
-var config = require('config');
-var urljoin = require('url-join');
 require('./centered-image.tag');
 var toastr = require('toastr/toastr.min.js');
 require('toastr/toastr.min.css');
-require('magnific-popup/magnific-popup.css');
-require('magnific-popup/jquery.magnific-popup.js');
 var buildQS = require('build-qs');
 require('tags/sortable-th.tag');
 require('tags/checkbox-filter.tag');
+require('tags/spu-type-table.tag');
+require('tags/loader.tag');
 
 <spu-type-list-app>
   <div class="ui grid list">
+    <loader if={ loading }></loader>
     <div class="ui top attached info message segment">
       <div class="ui header">
         SPU类型列表
@@ -33,51 +32,8 @@ require('tags/checkbox-filter.tag');
 
       <div riot-tag="checkbox-filter" checked_={ opts.ctx.query.onlyEnabled === '1' } label="仅展示激活" name="only_enabled" ctx={ opts.ctx }></div>
     </div>
-    <div class="ui bottom attached segment" if={ items }>
-      <table class="ui sortable compact striped table">
-        <thead class="full-width">
-          <th>
-            <div class="select-all ui checkbox">
-              <input type="checkbox">
-              <label for=""></label>
-            </div>
-          </th>
-          <th riot-tag="sortable-th" label="编号" name="id" ctx={ opts.ctx }></th>
-          <th>名称</th>
-          <th>图片</th>
-          <th riot-tag="sortable-th" label="产品数量" name="spu_cnt" ctx={ opts.ctx }></th>
-          <th riot-tag="sortable-th" label="权重" name="weight" ctx={ opts.ctx }></th>
-          <th>是否激活</th>
-        </thead>
-        <tbody class="full-width">
-          <tr each={ item in items } data-item-id={ item.id }>
-            <td>
-              <div class="select ui checkbox">
-                <input type="checkbox" data-id={ item.id }>
-                <label for=""></label>
-              </div>
-            </td>
-            <td>
-              <a href="/spu-type/{ item.id }">
-                { item.id }
-              </a>
-            </td>
-            <td>
-              { item.name }
-            </td>
-            <td>
-              <a href={ urljoin(config.backend, item.picPath) } class="image-link">
-                <centered-image img={ urljoin(config.backend, item.picPath) } class="ui tiny image"></centered-image>
-              </a>
-            </td>
-            <td>{ item.spuCnt }</td>
-            <td>{ item.weight }</td>
-            <td>
-              <i class="ui icon { item.enabled? 'green checkmark': 'red remove' }"></i>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="ui bottom attached segment">
+      <spu-type-table ctx={ opts.ctx }></spu-type-table>
     </div>
   </div>
   <script>
@@ -85,8 +41,6 @@ require('tags/checkbox-filter.tag');
     this.mixin(bus.Mixin);
 
     _.extend(self, {
-      config: config,
-      urljoin: urljoin,
       updating: [],
       updateHandlers: {
         weight: function (item) {
@@ -108,7 +62,7 @@ require('tags/checkbox-filter.tag');
         }
       },
       delete: function () {
-        var selected = Array.from(self.selected);
+        var selected = Array.from(self.tags['spu-type-table'].selected);
         if (!selected.length) {
           swal({
             type: 'info',
@@ -116,9 +70,8 @@ require('tags/checkbox-filter.tag');
             text: '请至少选择一个SPU类型',
           });
         } else {
-          debugger;
           if (selected.some(function (id) {
-            var item = self.items.filter(function (item) {
+            var item = self.tags['spu-type-table'].items.filter(function (item) {
               return item.id === parseInt(id);
             })[0];
             return item.spuCnt > 0;
@@ -143,34 +96,15 @@ require('tags/checkbox-filter.tag');
           });
         }
       },
-      selected: new Set(),
     });
 
     self.on('mount', function () {
-      self.processOpts();
       $(self.root).find('[data-content]').popup();
-    }).on('updated', function () {
-      $(self.root).find('a.image-link').magnificPopup({type:'image'});
-      $(self.root).find('.ui.select-all').checkbox({
-        onChecked: function () {
-          $(self.root).find('.ui.select.checkbox').checkbox('check');
-        },
-        onUnchecked: function () {
-          $(self.root).find('.ui.select.checkbox').checkbox('uncheck');
-        }
-      }).checkbox('set unchecked');
-      $(self.root).find('.ui.select.checkbox').checkbox({
-        onChecked: function () {
-          self.selected.add($(this).data('id'));
-        },
-        onUnchecked: function () {
-          self.selected.delete($(this).data('id'));
-        }
-      });
-    }).on('spuType.list.fetching spuType.updating', function () {
+    }).on('spuType.list.fetching  spuType.deleting', function () {
+      self.loading = true;
       self.update();
-    }).on('spuType.list.fetched', function (data) {
-      self.items = data.data;
+    }).on('spuType.list.fetched', function () {
+      self.loading = false;
       self.update();
     }).on('spuType.deleted', function () {
       swal({
