@@ -16,6 +16,9 @@ var page = require('page');
     <a class="ui item { opts.ctx.pathname === '/vendor-list' && 'active' }" if={ opts.ctx.user } href="/vendor-list">
       厂商管理
     </a>
+    <a class="ui item { opts.ctx.pathname === '/retailer-list' && 'active' }" if={ opts.ctx.user } href="/retailer-list">
+      零售商管理
+    </a>
     <div class="right menu" if={ opts.ctx.user }>
       <div class="ui dropdown item">
         <div class="fitted item">

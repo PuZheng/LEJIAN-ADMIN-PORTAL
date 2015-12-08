@@ -5,6 +5,7 @@ var spuTypeStore = require('stores/spu-type.js');
 var spuStore = require('stores/spu.js');
 var assetStore = require('stores/asset.js');
 var vendorStore = require('stores/vendor.js');
+var retailerStore = require('stores/retailer.js');
 var bus = require('riot-bus');
 var camelCase = require('camelcase');
 var config = require('config');
@@ -16,6 +17,7 @@ require('tags/nav-bar.tag');
 require('tags/spu-type-app.tag');
 require('tags/spu-list-app.tag');
 require('tags/vendor-list-app.tag');
+require('tags/retailer-list-app.tag');
 
 var swal = require('sweetalert/sweetalert.min.js');
 require('sweetalert/sweetalert.css');
@@ -97,6 +99,13 @@ var vendorList = function (ctx, next) {
     vendorStore.fetchList(ctx.query);
 };
 
+var retailerList = function (ctx, next) {
+    bus.register(retailerStore);
+    workspace.app = riot.mount('#main', 'retailer-list-app', { ctx: ctx })[0];
+    workspace.appName = 'retailer-list';
+    retailerStore.fetchList(ctx.query);
+};
+
 var navBar = function (ctx, next) {
     riot.mount('#nav-bar', 'nav-bar', {
         ctx: ctx
@@ -131,6 +140,7 @@ page('/auth/login', resetStores, navBar, login);
 page('/spu-type-list', function (ctx, next) {
     if (workspace.appName === 'spu-type-list') {
         // only update
+        workspace.app.opts = { ctx: ctx };
         workspace.app.update();
         bus.trigger('spuType.list.fetch', ctx.query);
     } else {
@@ -141,6 +151,7 @@ page('/spu-type-list', function (ctx, next) {
 page('/spu-list', function (ctx, next) {
     if (workspace.appName === 'spu-list') {
         // only update
+        workspace.app.opts = { ctx: ctx };
         workspace.app.update();
         bus.trigger('spu.list.fetch', ctx.query);
     } else {
@@ -150,12 +161,23 @@ page('/spu-list', function (ctx, next) {
 
 page('/vendor-list', function (ctx, next) {
     if (workspace.appName === 'vendor-list') {
+        workspace.app.opts = { ctx: ctx };
         workspace.app.update();
         bus.trigger('vendor.list.fetch', ctx.query);
     } else {
         next();
     }
 }, resetStores, loginRequired, navBar, setTitle('乐鉴-厂商列表'), vendorList);
+
+page('/retailer-list', function (ctx, next) {
+    if (workspace.appName === 'retailer-list') {
+        workspace.app.opts = { ctx: ctx };
+        workspace.app.update();
+        bus.trigger('retailer.list.fetch', ctx.query);
+    } else {
+        next();
+    }
+}, resetStores, loginRequired, navBar, setTitle('乐鉴-零售商列表'), retailerList);
 
 page('/spu-type/:id', resetStores, loginRequired, navBar, spuType);
 page('/', '/spu-list');
