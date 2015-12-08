@@ -17,10 +17,10 @@ RetailerStore.prototype.fetchList = function (query) {
 
     bus.trigger('retailer.list.fetching');
 
-    request('/retailer-list?' + buildQS(query)).done(function (res) {
+    request('/retailer/list.json?' + buildQS(query)).done(function (res) {
         bus.trigger('retailer.list.fetched', res.body);
-        bus.trigger('retailer.list.done');
-        d.resolve(data);
+        bus.trigger('retailer.list.fetch.done');
+        d.resolve(res.body);
     }).fail(function (err, res) {
         bus.trigger('retailer.list.fetch.failed', err);
         bus.trigger('retailer.list.fetch.done');

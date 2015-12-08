@@ -3,6 +3,8 @@ var bus = require('riot-bus');
 require('tags/batch-delete-btn.tag');
 require('tags/checkbox-filter.tag');
 require('tags/vendor-table.tag');
+require('tags/loader.tag');
+
 var buildQS = require('build-qs');
 
 <vendor-list-app>
@@ -26,11 +28,14 @@ var buildQS = require('build-qs');
       <div riot-tag="checkbox-filter" checked_={ opts.ctx.query.onlyEnabled === '1' } label="仅展示激活" name="only_enabled" ctx={ opts.ctx }></div>
     </div>
     <div class="ui bottom attached segment">
+      <loader if={ loading }></loader>
       <vendor-table ctx={ opts.ctx }></vendor-table>
     </div>
   </div>
   <script>
     var self = this;
+    self.mixin(bus.Mixin);
+
     self.doSearch = function (e) {
       var kw = $(e.target).val();
       if (kw) {
@@ -40,5 +45,12 @@ var buildQS = require('build-qs');
       }
       bus.trigger('go', '/vendor-list?' + buildQS(opts.ctx.query));
     };
+    self.on('vendor.list.fetching', function () {
+      self.loading = true;
+      self.update();
+    }).on('vendor.list.fetch.done', function () {
+      self.loading = false;
+      self.update();
+    });
   </script>
 </vendor-list-app>

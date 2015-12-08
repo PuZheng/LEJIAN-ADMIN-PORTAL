@@ -11,7 +11,6 @@ require('tags/loader.tag');
 
 <spu-type-list-app>
   <div class="ui grid list">
-    <loader if={ loading }></loader>
     <div class="ui top attached info message segment">
       <div class="ui header">
         SPU类型列表
@@ -24,7 +23,7 @@ require('tags/loader.tag');
     <div class="ui attached segment filters">
       <div class="ui search">
         <div class="ui icon input">
-          <input class="prompt" type="text" placeholder="按名称过滤" name="search" onkeyup={ doSearch } value={ opts.ctx.query.kw }>
+          <input class="prompt" type="text" placeholder="按名称过滤..." name="search" onkeyup={ doSearch } value={ opts.ctx.query.kw }>
           <i class="search icon"></i>
         </div>
         <div class="results"></div>
@@ -33,6 +32,7 @@ require('tags/loader.tag');
       <div riot-tag="checkbox-filter" checked_={ opts.ctx.query.onlyEnabled === '1' } label="仅展示激活" name="only_enabled" ctx={ opts.ctx }></div>
     </div>
     <div class="ui bottom attached segment">
+      <loader if={ loading }></loader>
       <spu-type-table ctx={ opts.ctx }></spu-type-table>
     </div>
   </div>
@@ -103,7 +103,7 @@ require('tags/loader.tag');
     }).on('spuType.list.fetching  spuType.deleting', function () {
       self.loading = true;
       self.update();
-    }).on('spuType.list.fetched', function () {
+    }).on('spuType.list.fetch.done', function () {
       self.loading = false;
       self.update();
     }).on('spuType.deleted', function () {

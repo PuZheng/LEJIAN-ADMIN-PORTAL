@@ -17,7 +17,7 @@ var buildQS = require('build-qs');
 require('tags/search.tag');
 
 <search-filter>
-  <div riot-tag="search" opts={ value.placeholder } value={ opts.value } options={ options } on-submit={ onSubmit }></div>
+  <div riot-tag="search" placeholder={ opts.placeholder } value={ opts.value } options={ options } on-submit={ onSubmit }></div>
 
   <script>
     var self = this;
