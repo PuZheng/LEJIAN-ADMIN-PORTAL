@@ -5,7 +5,6 @@ require('tags/loader.tag');
 var config = require('config');
 var buildQS = require('build-qs');
 var Pagination = require('pagination');
-var moment = require('moment');
 var decamelize = require('decamelize');
 var buildQS = require('build-qs');
 require('tags/sortable-th.tag');
@@ -49,7 +48,6 @@ require('tags/spu-table.tag');
     _.extend(self, {
       urlJoin: urlJoin,
       config: config,
-      moment: moment,
     });
 
     self.on('mount', function () {
@@ -59,10 +57,14 @@ require('tags/spu-table.tag');
       self.update();
     }).on('spu.list.fetched', function (data) {
       self.pagination = new Pagination({
+        leftEdge: 3,
+        rightEdge: 3,
+        leftCurrent: 3,
+        rightCurrent: 3,
         currentPage: self.opts.ctx.query.page || 1,
         perPage: self.opts.ctx.query.perPage || 12,
         totalCount: data.totalCnt,
-      });
+      }).toJSON();
       self.update();
     }).on('spu.list.fetch.done', function () {
       self.loading = false;

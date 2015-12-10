@@ -35,7 +35,7 @@ Pagination.prototype.iterPage = function (cb) {
            ((this.leftCurrent === null || i >= this.currentPage - this.leftCurrent) &&
            (this.rightCurrent === null || i < this.currentPage + this.rightCurrent))) {
             if (last + 1 != i) {
-                cb(null);
+                cb('');
             } else {
                 cb(i);
             }

@@ -1,5 +1,6 @@
 var riot = require('riot');
 var bus = require('riot-bus');
+var moment = require('moment');
 require('tags/loader.tag');
 
 <spu-table>
@@ -71,6 +72,7 @@ require('tags/loader.tag');
     var self = this;
     self.mixin(bus.Mixin);
     self.selected = new Set();
+    self.moment = moment;
 
     self.on('mount', function () {
       $(self.root).find('.select-all.checkbox').checkbox({
