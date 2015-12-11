@@ -1,7 +1,6 @@
 var riot = require('riot');
 var request = require('request');
 var bus = require('riot-bus');
-var camelCase = require('camelcase');
 var buildQS = require('build-qs');
 
 var SPUStore = function () {

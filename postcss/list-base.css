@@ -1,15 +1,15 @@
-.grid.list {
+#main .list-app {
     .image {
-      width: 96px !important;
-      height: 96px !important;
+        width: 96px !important;
+        height: 96px !important;
     }
 
     .top.segment > * {
-      display: inline-block;
+        display: inline-block;
     }
 
     table thead th:first-child, table tbody td:first-child {
-      text-align: center;
+        text-align: center;
     }
 
     table.ui.table {
@@ -17,17 +17,16 @@
     }
 
     .item .description > div {
-      margin-left: 2rem;
-      display: inline-block;
+        margin-left: 2rem;
+        display: inline-block;
     }
 
     .filters.segment > div {
-      margin-left: 1rem;
-      display: inline-block;
+        margin-left: 1rem;
+        display: inline-block;
     }
 
     .bottom.fixed.menu {
-      justify-content: center;
+        justify-content: center;
     }
-
 }

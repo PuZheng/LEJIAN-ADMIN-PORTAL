@@ -16,7 +16,7 @@ require('tags/batch-delete-btn.tag');
 require('tags/spu-table.tag');
 
 <spu-list-app>
-  <div class="ui grid list">
+  <div class="list-app">
     <div class="ui top attached blue message segment">
       <div class="ui header">
         SPU列表
@@ -25,14 +25,13 @@ require('tags/spu-table.tag');
         <i class="icon plus"></i>
       </a>
       <a riot-tag="batch-delete-btn" ids={ tags['spu-table'].selected } data-content="删除SPU" event="spu.delete"></a>
-    </div>
-    <div class="ui attached segment filters">
       <div riot-tag="search-filter" placeholder="按名称过滤..." value={ opts.ctx.query.kw } backend={ urlJoin(config.backend, '/spu/auto-complete/{query}') } ctx={ opts.ctx } name="kw"></div>
       <div riot-tag="checkbox-filter" checked_={ opts.ctx.query.onlyEnabled === '1' } label="仅展示激活产品" ctx={ opts.ctx } name='only_enabled'></div>
       <div riot-tag="dropdown-filter" items={ vendors } default-text="厂商" name="vendor" value={ opts.ctx.query.vendor } ctx={ opts.ctx }></div>
       <div riot-tag="dropdown-filter" items={ spuTypes } default-text="分类"
         name="spu_type" value={ opts.ctx.query.spuType } ctx={ opts.ctx }></div>
       <div riot-tag="dropdown-filter" items={ [1, 2, 3, 4, 5] } default-text="评分" name="rating" value={ opts.ctx.query.rating } ctx={ opts.ctx }></div>
+
     </div>
     <div class="ui bottom attached segment">
       <loader if={ loading }></loader>

@@ -8,7 +8,7 @@ require('tags/loader.tag');
 var buildQS = require('build-qs');
 
 <vendor-list-app>
-  <div class="ui grid list">
+  <div class="list-app">
     <div class="ui top attached info message segment">
       <div class="ui header">
         厂商列表
@@ -16,8 +16,6 @@ var buildQS = require('build-qs');
       <a class="ui tiny icon green circular button" href="/vendor" data-content="创建厂商">
         <i class="icon plus"></i>
       </a>
-    </div>
-    <div class="ui attached segment filters">
       <div class="ui search">
         <div class="ui icon input">
           <input class="prompt" type="text" placeholder="按名称过滤..." name="search" onkeyup={ doSearch } value={ opts.ctx.query.kw }>

@@ -33,6 +33,7 @@ module.exports = {
             'request$': resolvePath('./js/request.js'),
             'build-qs$': resolvePath('./js/build-qs.js'),
             'pagination$': resolvePath('./js/pagination.js'),
+            'css': resolvePath('./css'),
         },
         root: '.',
     },

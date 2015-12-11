@@ -1,5 +1,7 @@
 var riot = require('riot');
 var bus = require('riot-bus');
+var buildQS = require('build-qs');
+var request = require('request');
 
 var SKUStore = function() {
     riot.observable(this);
@@ -10,18 +12,19 @@ var SKUStore = function() {
 
 SKUStore.prototype.fetchList = function (query) {
     var d = $.Deferred();
+    query = _.assign({
+        page: 1,
+        perPage: 16,
+    }, query || {});
     bus.trigger('sku.list.fetching', query);
 
-    setTimeout(function () {
-        var data = {
-            data: [],
-            totalCnt: 10000,
-        };
-        bus.trigger('sku.list.fetched', data);
-        bus.trigger('sku.list.fetch.done');
-        d.resolve(data);
-    }, 1000);
+    request('/sku/list.json?' + buildQS(query)).done(function (res) {
+        bus.trigger('sku.list.fetched', res.body);
+        bus.trigger('sku.list.fetche.done');
+        d.resolve(res.body);
+    }).fail(function (err, res) {
 
+    });
     return d;
 };
 

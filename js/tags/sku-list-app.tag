@@ -6,8 +6,10 @@ require('tags/sku-table.tag')
 require('tags/paginator.tag');
 require('tags/spu-filter.tag');
 
+require('css/sku-list.css');
+
 <sku-list-app>
-  <div class="ui grid list">
+  <div class="list-app">
     <div class="ui top attached blue message segment">
       <div class="ui header">
         SKU列表
@@ -17,24 +19,55 @@ require('tags/spu-filter.tag');
       </a>
       <a riot-tag="batch-delete-btn" ids={ tags['spu-table'].selected } data-content="删除SKU" event="spu.delete"></a>
     </div>
-    <div class="ui attached segment filters">
-    </div>
     <div class="ui bottom attached segment">
-      <div class="ui grid">
-        <div class="ui row">
-          <div class="four wide column">
-            <spu-filter ctx={ opts.ctx }></spu-filter>
-          </div>
-          <div class="twelve wide column" if={ !loading }>
-            <sku-table ctx={ opts.ctx }></sku-table>
-            <paginator pagination={ pagination } if={ pagination } ctx={ opts.ctx }></paginator>
-          </div>
-        </div>
-      </div>
+      <aside riot-tag="spu-filter" ctx={ opts.ctx }></aside>
+      <section>
+        <div riot-tag="sku-table" ctx={ opts.ctx }></div>
+        <paginator pagination={ pagination } if={ pagination } ctx={ opts.ctx }></paginator>
+      </section>
     </div>
   </div>
 
   <style scoped>
+    .ui.bottom.segment {
+      min-height: 20rem;
+    }
+    .ui.bottom.segment:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+    .ui.bottom.segment > * {
+      float: left;
+      padding-right: 1rem;
+    }
+    .ui.bottom.segment > *:last-child {
+      padding-right: 0rem;
+    }
+
+    .ui.bottom.segment > section {
+      width: 70%;
+      text-align: center;
+      position: relative;
+      height: 100%;
+    }
+
+    .ui.bottom.segment section paginator {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    [riot-tag="sku-table"] {
+      height: 100%;
+      padding-bottom: 4rem;
+    }
+
+    [riot-tag="spu-filter"] {
+      width: 30%;
+      height: 100%;
+    }
   </style>
   <script>
     var self = this;
@@ -50,6 +83,9 @@ require('tags/spu-filter.tag');
         totalCount: data.totalCnt,
       }).toJSON();
       self.update();
+    }).on('spu.list.fetched', function (data) {
+      var $bottom = $(self.root).find('.bottom.segment');
+      $bottom.outerHeight($bottom.offsetParent().height() - $bottom.offset().top);
     });
 
   </script>

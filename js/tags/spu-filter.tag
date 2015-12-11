@@ -49,7 +49,7 @@ require('perfect-scrollbar/dist/js/min/perfect-scrollbar.jquery.min.js');
       self.items = self.allItems;
       self.update();
       var $menu = $(self.root).children('.menu');
-      $menu.height($(window).height() - $menu.offset().top - 20);
+      $menu.height($(self.root).height() - $menu.position().top);
       $menu.perfectScrollbar();
     }).on('mount', function () {
       $(self.root).find('.search input').keyup(function (e) {

@@ -98,7 +98,9 @@ gulp.task('test', function () {
 });
 
 gulp.task('css', function () {
-    gulp.src('postcss/*.css').pipe(postcss([precss])).pipe(gulp.dest('./css')).pipe(livereload());
+    gulp.src('postcss/*.css').pipe(postcss([
+        precss,
+    ])).pipe(gulp.dest('./css')).pipe(livereload());
 });
 
 
