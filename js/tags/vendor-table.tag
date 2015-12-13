@@ -1,10 +1,8 @@
 var riot = require('riot');
 var bus = require('riot-bus');
-
-
-require('tags/sortable-th.tag');
 var moment = require('moment');
 
+require('tags/sortable-th.tag');
 
 <vendor-table>
   <table class="ui sortable compact striped table">
@@ -52,12 +50,12 @@ var moment = require('moment');
   <script>
     var self = this;
     self.mixin(bus.Mixin);
+    self.moment = moment;
 
     self.on('vendor.list.fetched', function (data) {
       self.items = data.data;
       self.update();
     });
-    self.moment = moment;
   </script>
 
 </vendor-table>

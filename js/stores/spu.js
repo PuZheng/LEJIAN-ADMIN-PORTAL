@@ -1,7 +1,6 @@
 var riot = require('riot');
 var request = require('request');
 var bus = require('riot-bus');
-var camelCase = require('camelcase');
 var buildQS = require('build-qs');
 
 var SPUStore = function () {
@@ -15,7 +14,7 @@ var SPUStore = function () {
 
 SPUStore.prototype.fetchList = function (query) {
     var d = $.Deferred();
-    bus.trigger('spu.list.fetching');
+    bus.trigger('spu.list.fetching', query);
     request('/spu/spu-list?' + buildQS(query)).done(function (res) {
         bus.trigger('spu.list.fetched', res.body);
         bus.trigger('spu.list.fetch.done');

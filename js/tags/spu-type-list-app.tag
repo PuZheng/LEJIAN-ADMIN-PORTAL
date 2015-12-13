@@ -10,7 +10,7 @@ require('tags/spu-type-table.tag');
 require('tags/loader.tag');
 
 <spu-type-list-app>
-  <div class="ui grid list">
+  <div class="list-app">
     <div class="ui top attached info message segment">
       <div class="ui header">
         SPU类型列表
@@ -18,9 +18,7 @@ require('tags/loader.tag');
       <a class="ui tiny icon green circular button" href="/spu/spu-type" data-content="创建SPU分类">
         <i class="icon plus"></i>
       </a>
-      <a riot-tag="batch-delete-btn" data-content="删除SPU分类" handler={ delete }></a>
-    </div>
-    <div class="ui attached segment filters">
+      <a riot-tag="batch-delete-btn" data-content="删除SPU分类" handler={ delete } ctx={ opts.ctx } success-event='spuType.deleted'></a>
       <div class="ui search">
         <div class="ui icon input">
           <input class="prompt" type="text" placeholder="按名称过滤..." name="search" onkeyup={ doSearch } value={ opts.ctx.query.kw }>
@@ -28,7 +26,6 @@ require('tags/loader.tag');
         </div>
         <div class="results"></div>
       </div>
-
       <div riot-tag="checkbox-filter" checked_={ opts.ctx.query.onlyEnabled === '1' } label="仅展示激活" name="only_enabled" ctx={ opts.ctx }></div>
     </div>
     <div class="ui bottom attached segment">
@@ -106,14 +103,6 @@ require('tags/loader.tag');
     }).on('spuType.list.fetch.done', function () {
       self.loading = false;
       self.update();
-    }).on('spuType.deleted', function () {
-      swal({
-        type: 'success',
-        title: '',
-        text: '删除成功!'
-      }, function () {
-        bus.trigger('go', opts.ctx.path);
-      });
     });
     self.doSearch = function (e) {
       var kw = $(e.target).val();

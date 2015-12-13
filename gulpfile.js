@@ -10,7 +10,7 @@ var postcss = require('gulp-postcss');
 var precss = require('precss');
 var livereload = require('gulp-livereload');
 
-gulp.task('template-compile', function () {
+gulp.task('compile', function () {
     var config = require('./convict-def.js');
     gulp.src('js/config.js.tpl').pipe(data(config.getProperties())).pipe(template()).pipe(rename(function (path) {
         path.extname = '';
@@ -98,45 +98,7 @@ gulp.task('test', function () {
 });
 
 gulp.task('css', function () {
-    gulp.src('postcss/*.css').pipe(postcss([precss])).pipe(gulp.dest('./css')).pipe(livereload());
-});
-
-
-var rollup = require('gulp-rollup');
-var sourcemaps = require('gulp-sourcemaps');
-var commonjs = require('rollup-plugin-commonjs');
-var npm = require('rollup-plugin-npm');
-
-gulp.task('bundle', function(){
-  gulp.src('js/test.js', {read: false})
-    .pipe(rollup({
-        // any option supported by rollup can be set here, including sourceMap
-
-        plugins: [
-            npm({
-                jsnext: true,
-                main: true
-            }),
-            commonjs({
-                include: 'node_modules/*',
-            })
-        ],
-        sourceMap: true
-    }))
-    .pipe(sourcemaps.write(".")) // this only works if the sourceMap option is true
-    .pipe(gulp.dest('dist'));
-});
-
-var nunjucksRender = require('gulp-nunjucks-render');
-
-gulp.task('render', function () {
-    return gulp.src(['js/tags/vendor-table.tag.tmpl']).pipe(data(function () {
-        return {
-            'listFetchEvent': 'vendor.list.fetched',
-            'tagName': 'vendor-table',
-        };
-    }))
-        .pipe(nunjucksRender()).pipe(rename(function (path) {
-            path.extname = '';
-        })).pipe(gulp.dest('js/tags/')).pipe(livereload());
+    gulp.src('postcss/*.css').pipe(postcss([
+        precss,
+    ])).pipe(gulp.dest('./css')).pipe(livereload());
 });

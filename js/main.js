@@ -6,6 +6,7 @@ var spuStore = require('stores/spu.js');
 var assetStore = require('stores/asset.js');
 var vendorStore = require('stores/vendor.js');
 var retailerStore = require('stores/retailer.js');
+var skuStore = require('stores/sku.js');
 var bus = require('riot-bus');
 var camelCase = require('camelcase');
 var config = require('config');
@@ -18,6 +19,7 @@ require('tags/spu-type-app.tag');
 require('tags/spu-list-app.tag');
 require('tags/vendor-list-app.tag');
 require('tags/retailer-list-app.tag');
+require('tags/sku-list-app.tag');
 
 var swal = require('sweetalert/sweetalert.min.js');
 require('sweetalert/sweetalert.css');
@@ -106,6 +108,21 @@ var retailerList = function (ctx, next) {
     retailerStore.fetchList(ctx.query);
 };
 
+var skuList = function (ctx, next) {
+    bus.register(skuStore);
+    _.assign(ctx.query, {
+        page: 1,
+        perPage: 16,
+    });
+    workspace.app = riot.mount('#main', 'sku-list-app', {
+        ctx: ctx
+    })[0];
+    workspace.appName = 'sku-list';
+    skuStore.fetchList(ctx.query).done(function () {
+        spuStore.fetchList();
+    });
+};
+
 var navBar = function (ctx, next) {
     riot.mount('#nav-bar', 'nav-bar', {
         ctx: ctx
@@ -147,7 +164,6 @@ page('/spu-type-list', function (ctx, next) {
         next();
     }
 }, resetStores, loginRequired, navBar, setTitle('乐鉴-SPU分类列表'), spuTypeList);
-
 page('/spu-list', function (ctx, next) {
     if (workspace.appName === 'spu-list') {
         // only update
@@ -158,7 +174,6 @@ page('/spu-list', function (ctx, next) {
         next();
     }
 }, resetStores, loginRequired, navBar, setTitle('乐鉴-SPU列表'), spuList);
-
 page('/vendor-list', function (ctx, next) {
     if (workspace.appName === 'vendor-list') {
         workspace.app.opts = { ctx: ctx };
@@ -168,7 +183,6 @@ page('/vendor-list', function (ctx, next) {
         next();
     }
 }, resetStores, loginRequired, navBar, setTitle('乐鉴-厂商列表'), vendorList);
-
 page('/retailer-list', function (ctx, next) {
     if (workspace.appName === 'retailer-list') {
         workspace.app.opts = { ctx: ctx };
@@ -178,6 +192,15 @@ page('/retailer-list', function (ctx, next) {
         next();
     }
 }, resetStores, loginRequired, navBar, setTitle('乐鉴-零售商列表'), retailerList);
+page('/sku-list', function (ctx, next) {
+    if (workspace.appName === 'sku-list') {
+        workspace.app.opts = { ctx: ctx };
+        workspace.app.update();
+        bus.trigger('sku.list.fetch', ctx.query);
+    } else {
+        next();
+    }
+}, resetStores, loginRequired, navBar, setTitle('乐鉴-SKU列表'), skuList);
 
 page('/spu-type/:id', resetStores, loginRequired, navBar, spuType);
 page('/', '/spu-list');

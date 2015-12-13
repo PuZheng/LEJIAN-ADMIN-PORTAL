@@ -16,7 +16,6 @@ var riot = require('riot');
           opts.onSubmit && opts.onSubmit.call(this, $(e.target).val());
         }
       });
-
     });
   </script>
 </search>

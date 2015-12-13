@@ -5,7 +5,6 @@ require('tags/loader.tag');
 var config = require('config');
 var buildQS = require('build-qs');
 var Pagination = require('pagination');
-var moment = require('moment');
 var decamelize = require('decamelize');
 var buildQS = require('build-qs');
 require('tags/sortable-th.tag');
@@ -17,7 +16,7 @@ require('tags/batch-delete-btn.tag');
 require('tags/spu-table.tag');
 
 <spu-list-app>
-  <div class="ui grid list">
+  <div class="list-app">
     <div class="ui top attached blue message segment">
       <div class="ui header">
         SPU列表
@@ -25,15 +24,14 @@ require('tags/spu-table.tag');
       <a class="ui tiny icon circular green button" href="/spu" data-content="创建SPU">
         <i class="icon plus"></i>
       </a>
-      <a riot-tag="batch-delete-btn" ids={ tags['spu-table'].selected } data-content="删除SPU" event="spu.delete"></a>
-    </div>
-    <div class="ui attached segment filters">
+      <a riot-tag="batch-delete-btn" ids={ tags['spu-table'].selected } data-content="删除SPU" event="spu.delete" success-event="spu.deleted" ctx={ opts.ctx }></a>
       <div riot-tag="search-filter" placeholder="按名称过滤..." value={ opts.ctx.query.kw } backend={ urlJoin(config.backend, '/spu/auto-complete/{query}') } ctx={ opts.ctx } name="kw"></div>
       <div riot-tag="checkbox-filter" checked_={ opts.ctx.query.onlyEnabled === '1' } label="仅展示激活产品" ctx={ opts.ctx } name='only_enabled'></div>
       <div riot-tag="dropdown-filter" items={ vendors } default-text="厂商" name="vendor" value={ opts.ctx.query.vendor } ctx={ opts.ctx }></div>
       <div riot-tag="dropdown-filter" items={ spuTypes } default-text="分类"
         name="spu_type" value={ opts.ctx.query.spuType } ctx={ opts.ctx }></div>
       <div riot-tag="dropdown-filter" items={ [1, 2, 3, 4, 5] } default-text="评分" name="rating" value={ opts.ctx.query.rating } ctx={ opts.ctx }></div>
+
     </div>
     <div class="ui bottom attached segment">
       <loader if={ loading }></loader>
@@ -49,7 +47,6 @@ require('tags/spu-table.tag');
     _.extend(self, {
       urlJoin: urlJoin,
       config: config,
-      moment: moment,
     });
 
     self.on('mount', function () {
@@ -59,10 +56,14 @@ require('tags/spu-table.tag');
       self.update();
     }).on('spu.list.fetched', function (data) {
       self.pagination = new Pagination({
+        leftEdge: 3,
+        rightEdge: 3,
+        leftCurrent: 3,
+        rightCurrent: 3,
         currentPage: self.opts.ctx.query.page || 1,
         perPage: self.opts.ctx.query.perPage || 12,
         totalCount: data.totalCnt,
-      });
+      }).toJSON();
       self.update();
     }).on('spu.list.fetch.done', function () {
       self.loading = false;
@@ -80,14 +81,6 @@ require('tags/spu-table.tag');
     }).on('spu.deleteing', function () {
       self.loading = true;
       self.update();
-    }).on('spu.deleted', function () {
-      swal({
-        type: 'success',
-        title: '',
-        text: '删除成功!'
-      }, function () {
-        bus.trigger('go', opts.ctx.path);
-      });
     }).on('spu.delete.done', function () {
       self.loading = false;
       self.update();
