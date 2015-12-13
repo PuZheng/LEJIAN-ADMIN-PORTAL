@@ -110,6 +110,10 @@ var retailerList = function (ctx, next) {
 
 var skuList = function (ctx, next) {
     bus.register(skuStore);
+    _.assign(ctx.query, {
+        page: 1,
+        perPage: 16,
+    });
     workspace.app = riot.mount('#main', 'sku-list-app', {
         ctx: ctx
     })[0];

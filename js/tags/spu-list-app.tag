@@ -24,7 +24,7 @@ require('tags/spu-table.tag');
       <a class="ui tiny icon circular green button" href="/spu" data-content="创建SPU">
         <i class="icon plus"></i>
       </a>
-      <a riot-tag="batch-delete-btn" ids={ tags['spu-table'].selected } data-content="删除SPU" event="spu.delete"></a>
+      <a riot-tag="batch-delete-btn" ids={ tags['spu-table'].selected } data-content="删除SPU" event="spu.delete" success-event="spu.deleted" ctx={ opts.ctx }></a>
       <div riot-tag="search-filter" placeholder="按名称过滤..." value={ opts.ctx.query.kw } backend={ urlJoin(config.backend, '/spu/auto-complete/{query}') } ctx={ opts.ctx } name="kw"></div>
       <div riot-tag="checkbox-filter" checked_={ opts.ctx.query.onlyEnabled === '1' } label="仅展示激活产品" ctx={ opts.ctx } name='only_enabled'></div>
       <div riot-tag="dropdown-filter" items={ vendors } default-text="厂商" name="vendor" value={ opts.ctx.query.vendor } ctx={ opts.ctx }></div>
@@ -81,14 +81,6 @@ require('tags/spu-table.tag');
     }).on('spu.deleteing', function () {
       self.loading = true;
       self.update();
-    }).on('spu.deleted', function () {
-      swal({
-        type: 'success',
-        title: '',
-        text: '删除成功!'
-      }, function () {
-        bus.trigger('go', opts.ctx.path);
-      });
     }).on('spu.delete.done', function () {
       self.loading = false;
       self.update();

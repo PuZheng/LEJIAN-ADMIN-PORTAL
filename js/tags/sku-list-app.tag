@@ -5,11 +5,14 @@ var Pagination = require('pagination');
 require('tags/sku-table.tag')
 require('tags/paginator.tag');
 require('tags/spu-filter.tag');
+require('tags/checkbox-filter.tag');
+require('tags/loader.tag');
 
 require('css/sku-list.css');
 
 <sku-list-app>
   <div class="list-app">
+    <loader if={ loading }></loader>
     <div class="ui top attached blue message segment">
       <div class="ui header">
         SKU列表
@@ -17,7 +20,8 @@ require('css/sku-list.css');
       <a class="ui tiny icon circular green button" href="/spu" data-content="创建SKU">
         <i class="icon plus"></i>
       </a>
-      <a riot-tag="batch-delete-btn" ids={ tags['spu-table'].selected } data-content="删除SKU" event="spu.delete"></a>
+      <a riot-tag="batch-delete-btn" ids={ tags['sku-table'].selected } data-content="删除SKU" event="sku.delete" success-event="sku.deleted" ctx={ opts.ctx }></a>
+      <div riot-tag="checkbox-filter" label="仅展示未过期SKU" name="unexpired_only" ctx={ opts.ctx } checked_={ opts.ctx.query.unexpiredOnly === '1' }></div>
     </div>
     <div class="ui bottom attached segment">
       <aside riot-tag="spu-filter" ctx={ opts.ctx }></aside>
@@ -72,14 +76,22 @@ require('css/sku-list.css');
   <script>
     var self = this;
     self.mixin(bus.Mixin);
-    self.on('sku.list.fetched', function (data) {
+    self.on('mount', function (data) {
+      $(self.root).find('[data-content]').popup();
+    }).on('sku.deleting', function () {
+      self.loading = true;
+      self.update();
+    }).on('sku.delete.done', function () {
+      self.loading = false;
+      self.update();
+    }).on('sku.list.fetched', function (data) {
       self.pagination = new Pagination({
         leftEdge: 3,
         rightEdge: 3,
         leftCurrent: 3,
         rightCurrent: 3,
-        currentPage: self.opts.ctx.query.page || 1,
-        perPage: self.opts.ctx.query.perPage || 12,
+        currentPage: self.opts.ctx.query.page,
+        perPage: self.opts.ctx.query.perPage,
         totalCount: data.totalCnt,
       }).toJSON();
       self.update();

@@ -18,7 +18,7 @@ require('tags/loader.tag');
       <a class="ui tiny icon green circular button" href="/spu/spu-type" data-content="创建SPU分类">
         <i class="icon plus"></i>
       </a>
-      <a riot-tag="batch-delete-btn" data-content="删除SPU分类" handler={ delete }></a>
+      <a riot-tag="batch-delete-btn" data-content="删除SPU分类" handler={ delete } ctx={ opts.ctx } success-event='spuType.deleted'></a>
       <div class="ui search">
         <div class="ui icon input">
           <input class="prompt" type="text" placeholder="按名称过滤..." name="search" onkeyup={ doSearch } value={ opts.ctx.query.kw }>
@@ -103,14 +103,6 @@ require('tags/loader.tag');
     }).on('spuType.list.fetch.done', function () {
       self.loading = false;
       self.update();
-    }).on('spuType.deleted', function () {
-      swal({
-        type: 'success',
-        title: '',
-        text: '删除成功!'
-      }, function () {
-        bus.trigger('go', opts.ctx.path);
-      });
     });
     self.doSearch = function (e) {
       var kw = $(e.target).val();
