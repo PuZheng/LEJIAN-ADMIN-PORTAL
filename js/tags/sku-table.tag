@@ -21,6 +21,7 @@ require('perfect-scrollbar/dist/js/min/perfect-scrollbar.jquery.min.js');
       <th>SPU</th>
       <th>token</th>
       <th riot-tag="sortable-th" label="验证次数" name="verity_count" ctx={ opts.ctx }></th>
+      <th riot-tag="sortable-th" label="最后验证时间" name="last_verify_time" ctx={ opts.ctx }></th>
       <th riot-tag="sortable-th" label="生产日期" name="manufacture_date" ctx={ opts.ctx }></th>
       <th riot-tag="sortable-th" label="质保期" name="expire_date" ctx={ opts.ctx }></th>
 
@@ -37,6 +38,7 @@ require('perfect-scrollbar/dist/js/min/perfect-scrollbar.jquery.min.js');
         <td>{ spu.name }</td>
         <td>{ token }</td>
         <td>{ verifyCount }</td>
+        <td>{ moment(lastVerifyTime).format('YY-MM-DD HH:MM') }</td>
         <td>{ moment(manufactureDate).format('YY-MM-DD') }</td>
         <td class={ (moment(expireDate, 'YYYY-MM-DD') < new Date()) && 'ui tiny header red' }>{ moment(expireDate).format('YY-MM-DD') }</td>
       </tr>

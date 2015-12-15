@@ -77,6 +77,7 @@ var login = function (ctx, next) {
 };
 
 var spuTypeList = function (ctx, next) {
+    debugger;
     bus.register(spuTypeStore);
     workspace.app = riot.mount('#main', 'spu-type-list-app', { ctx: ctx })[0];
     workspace.appName = 'spu-type-list';
@@ -133,9 +134,10 @@ var navBar = function (ctx, next) {
 var spuType = function (ctx, next) {
     bus.register(spuTypeStore);
     bus.register(assetStore);
-    riot.mount('#main', 'spu-type-app', {
+    workspace.app = riot.mount('#main', 'spu-type-app', {
         itemId: ctx.params.id
-    });
+    })[0];
+    workspace.appName = 'spu-type';
     ctx.params.id && bus.trigger('spuType.fetch', ctx.params.id);
 };
 
@@ -202,7 +204,7 @@ page('/sku-list', function (ctx, next) {
     }
 }, resetStores, loginRequired, navBar, setTitle('乐鉴-SKU列表'), skuList);
 
-page('/spu-type/:id', resetStores, loginRequired, navBar, spuType);
+page('/spu-type/:id?', resetStores, loginRequired, navBar, spuType);
 page('/', '/spu-list');
 
 page();

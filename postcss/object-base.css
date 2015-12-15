@@ -1,0 +1,29 @@
+.top.attached.message {
+    .row {
+        padding: 0;
+    }
+    .header {
+        display: inline-block !important;
+    }
+}
+
+.bottom.attached.segment {
+    min-height: 32rem;
+    form {
+        input[type=file] {
+            position: absolute;
+            top: 0;
+            right: 0;
+            min-width: 100%;
+            min-height: 100%;
+            opacity: 0 !important;
+            display: block;
+        }
+        .field label {
+            width: 10rem !important;
+        }
+        .field .header {
+            display: inline-block;
+        }
+    }
+}
