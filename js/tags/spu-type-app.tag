@@ -11,7 +11,6 @@ require('toastr/toastr.min.css');
 var nprogress = require('nprogress/nprogress.js');
 require('nprogress/nprogress.css');
 var swal = require('sweetalert/sweetalert.min.js');
-require('sweetalert/sweetalert.css');
 
 <spu-type-app>
   <div class="ui page grid">
@@ -28,7 +27,7 @@ require('sweetalert/sweetalert.css');
               </div>
               <i class="icon asterisk" if={ editing }></i>
             </div>
-            <div class="right aligned column" if={ spuType }>
+            <div class="right aligned column" if={ opts.itemId }>
               <div class="ui icon buttons">
                 <button class="ui green button edit { editing && 'disabled' }" data-content="编辑对象" onclick={ onClickEdit }>
                   <i class="icon edit"></i>
@@ -48,7 +47,11 @@ require('sweetalert/sweetalert.css');
           </div>
           <div class="ui inline field" if={ spuType }>
             <label for="">SPU数量</label>
-            <div class="ui tiny header">{ spuType.spuCnt }</div>
+            <div class="ui tiny header">
+              <a href="/spu-list?spu_type={ opts.itemId }">
+                { spuType.spuCnt }
+              </a>
+            </div>
           </div>
           <div class="ui inline field">
             <label for="">名称</label>
@@ -71,8 +74,8 @@ require('sweetalert/sweetalert.css');
               <centered-image img={ urljoin(config.backend, spuType.picPath) }></centered-image>
               <input type="hidden" name="picPath" value={ spuType.picPath }>
             </div>
-            <button class="ui button" if={ !opts.itemId }>上传图片
-              <input type="file" disabled={ !editing }>
+            <button class="ui tiny button" disabled={ !editing }>上传图片
+              <input type="file">
             </button>
           </div>
           <hr>
@@ -86,49 +89,16 @@ require('sweetalert/sweetalert.css');
   </div>
 
   <style scoped>
-    .top.attached.message .row {
-      padding: 0;
-    }
-    .top.attached.message .header {
-      display: inline-block !important;
-    }
-
-    .bottom.attached.segment {
-      min-height: 32rem;
-    }
-
-    form .field label {
-      width: 10rem !important;
-    }
-    form .field .header {
-      display: inline-block;
-    }
     form centered-image {
-      display: inline-block;
-      width: 256px;
-      height: 256px;
-    }
-
-    form .button {
-      display: inline-block;
-      position: relative;
+        display: inline-block;
+        width: 256px;
+        height: 256px;
     }
 
     form .image.field > div {
-      position: relative;
-      display: inline-block;
+        position: relative;
+        display: inline-block;
     }
-
-    input[type=file] {
-      position: absolute;
-      top: 0;
-      right: 0;
-      min-width: 100%;
-      min-height: 100%;
-      opacity: 0 !important;
-      display: block;
-    }
-
   </style>
 
   <script>
@@ -308,7 +278,7 @@ require('sweetalert/sweetalert.css');
         text: 'spu分类创建成功，是否继续编辑?',
         showCancelButton: true,
       }, function (confirmed) {
-        bus.trigger('go', confirmed? '/spu/spu-type/' + item.id: '/');
+        bus.trigger('go', confirmed? '/spu-type/' + item.id: '/');
       });
     }).on('spuType.create.failed', function () {
       toastr.error('创建失败！', '', {
