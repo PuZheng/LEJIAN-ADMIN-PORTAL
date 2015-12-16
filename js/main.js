@@ -77,7 +77,6 @@ var login = function (ctx, next) {
 };
 
 var spuTypeList = function (ctx, next) {
-    debugger;
     bus.register(spuTypeStore);
     workspace.app = riot.mount('#main', 'spu-type-list-app', { ctx: ctx })[0];
     workspace.appName = 'spu-type-list';
@@ -135,7 +134,7 @@ var spuType = function (ctx, next) {
     bus.register(spuTypeStore);
     bus.register(assetStore);
     workspace.app = riot.mount('#main', 'spu-type-app', {
-        itemId: ctx.params.id
+        ctx: ctx,
     })[0];
     workspace.appName = 'spu-type';
     ctx.params.id && bus.trigger('spuType.fetch', ctx.params.id);
