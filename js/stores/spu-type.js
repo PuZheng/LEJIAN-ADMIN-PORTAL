@@ -20,6 +20,7 @@ var SPUTypeStore = function () {
 
 SPUTypeStore.prototype.fetchList = function (query) {
     var d = $.Deferred();
+    query = query || {};
     bus.trigger('spuType.list.fetching');
     var setupItems = function (query, items) {
         if (query.sortBy) {

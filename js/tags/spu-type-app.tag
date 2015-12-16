@@ -93,7 +93,6 @@ var swal = require('sweetalert/sweetalert.min.js');
       nprogress.configure({ trickle: false });
     }).on('before.asset.update', function () {
       nprogress.start();
-      self.loading = true;
       self.update;
     }).on('asset.upload.progress', function (percent) {
       nprogress.set(percent);

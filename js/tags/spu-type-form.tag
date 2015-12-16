@@ -139,8 +139,6 @@ require('tags/centered-image.tag');
       self.update();
     }).on('spuType.fetched', function (item) {
       self.item = item;
-      self.update();
-    }).on('spuType.fetch.done', function () {
       self.loading = false;
       self.update();
     }).on('spuType.updated', function (item, patch) {
