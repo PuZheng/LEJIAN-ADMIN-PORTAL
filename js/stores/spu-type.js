@@ -72,7 +72,11 @@ SPUTypeStore.prototype.fetchList = function (query) {
 
 SPUTypeStore.prototype.update = function (item, patch) {
     bus.trigger('spuType.updating');
+    var cached = this.items.filter(function (i) {
+        return i.id === item.id;
+    })[0];
     request.put('/spu/spu-type/' + item.id, patch).done(function (res) {
+        _.assign(cached, res.body);
         bus.trigger('spuType.updated', res.body, patch);
         bus.trigger('spuType.update.done');
     }).fail(function (err, res) {
