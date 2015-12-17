@@ -110,7 +110,6 @@ var swal = require('sweetalert/sweetalert.min.js');
           var v = pair[1];
           if (v != self[k]) {
             if (k === 'pics') {
-              diff[k] = 
             } else {
               diff[k] = v;
             }
