@@ -9,6 +9,8 @@ var SPUStore = function () {
         this.fetchList(query);
     }).on('spu.delete', function (ids) {
         this.delete(ids);
+    }).on('spu.create', function (data) {
+        this.create(data);
     });
 };
 
@@ -41,6 +43,21 @@ SPUStore.prototype.delete = function (ids) {
     });
     return d;
 
+};
+
+SPUStore.prototype.create = function (data) {
+    var d = $.Deferred();
+    bus.trigger('spu.creating', data);
+    request.post('/spu/spu', data).done(function (res) {
+        bus.trigger('spu.created', res.body, data);
+        bus.trigger('spu.create.done');
+        d.resolve(res.body, data);
+    }).fail(function (err, res) {
+        bus.trigger('spu.create.failed', err, data);
+        bus.trigger('spu.delete.done');
+        d.reject(err);
+    });
+    return d;
 };
 
 module.exports = new SPUStore();
