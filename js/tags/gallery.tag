@@ -18,7 +18,7 @@ require('toastr/toastr.min.css');
             </div>
           </div>
         </div>
-        <img class="ui image" src={ dataURL || image.url }>
+        <img class="ui image" src={ dataURL || url }>
       </div>
     </div>
     <div class="ui bottom attached progress">
@@ -36,7 +36,15 @@ require('toastr/toastr.min.css');
       }
     }();
 
-    self.on('mount', function () {
+    self.on('update', function () {
+      if (!_.isEmpty(opts.images)) {
+        self.images = opts.images.map(function (im) {
+          return {
+            url: im,
+          };
+        });
+      }
+    }).on('mount', function () {
       self.$progress = $(self.root).find('.progress');
       self.$fileInput = $(self.root).find('[type=file]');
       self.$fileInput.change(function (e) {

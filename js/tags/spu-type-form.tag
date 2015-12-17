@@ -99,7 +99,7 @@ require('tags/centered-image.tag');
               timeOut: 1000,
             });
           } else {
-            bus.trigger('spuType.update', _.extend({}, self.item), self.formData());
+            bus.trigger('spuType.update', _.extend({}, self.item), formData);
           }
         } else {
           request('/spu/spu-type-list?name=' + this.name.value).done(function (res) {

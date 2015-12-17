@@ -11,6 +11,8 @@ var SPUStore = function () {
         this.delete(ids);
     }).on('spu.create', function (data) {
         this.create(data);
+    }).on('spu.fetch', function (id) {
+        this.fetch(id);
     });
 };
 
@@ -55,7 +57,22 @@ SPUStore.prototype.create = function (data) {
     }).fail(function (err, res) {
         bus.trigger('spu.create.failed', err, data);
         bus.trigger('spu.delete.done');
-        d.reject(err);
+        d.reject(err, id);
+    });
+    return d;
+};
+
+SPUStore.prototype.fetch = function (id) {
+    var d = $.Deferred();
+    bus.trigger('spu.fetching', id);
+    request('/spu/spu/' + id).done(function (res) {
+        bus.trigger('spu.fetched', res.body);
+        bus.trigger('spu.fetch.done');
+        d.resolve(res.body);
+    }).fail(function (err, res) {
+        bus.trigger('spu.fetch.failed', err, id);
+        bus.trigger('spu.fetch.done');
+        d.reject(err, id);
     });
     return d;
 };
