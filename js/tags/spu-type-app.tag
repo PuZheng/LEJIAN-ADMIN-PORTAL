@@ -93,18 +93,17 @@ var swal = require('sweetalert/sweetalert.min.js');
       nprogress.configure({ trickle: false });
     }).on('before.asset.update', function () {
       nprogress.start();
-      self.loading = true;
-      self.update;
+      self.update();
     }).on('asset.upload.progress', function (percent) {
       nprogress.set(percent);
-    }).on('asset.upload.done', function (paths) {
+    }).on('asset.uploaded', function (paths) {
       $(self.root).find('[name=picPath]').val(paths[0]);
     }).on('asset.upload.failed', function () {
       toastr.error('上传失败！', '', {
         positionClass: 'toast-bottom-center',
         timeOut: 1000,
       });
-    }).on('asset.upload.end', function () {
+    }).on('asset.upload.done', function () {
       nprogress.done();
       self.$fileInput.val('');
     }).on('spuType.fetched', function (item) {

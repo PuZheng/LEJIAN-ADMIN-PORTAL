@@ -76,6 +76,8 @@
     "yamljs": "^0.2.4"
   },
   "devDependencies": {
+    "6to5-core": "^3.6.5",
+    "6to5-loader": "^3.0.0",
     "chai": "^3.3.0",
     "chai-jquery": "^2.0.0",
     "gulp-livereload": "^3.8.0",

@@ -1,10 +1,8 @@
 var riot = require('riot');
 var bus = require('riot-bus');
-var config = require('config');
-var urljoin = require('url-join');
 var toastr = require('toastr/toastr.min.js');
-var request = require('request');
 require('toastr/toastr.min.css');
+var request = require('request');
 require('tags/centered-image.tag');
 
 <spu-type-form>
@@ -30,18 +28,17 @@ require('tags/centered-image.tag');
     </div>
     <div class="ui inline field">
       <div class="ui checkbox">
-        <input type="checkbox" disabled={ !opts.editing } checked={ item.enabled }>
+        <input type="checkbox" disabled={ !opts.editing } checked={ item.enabled } name="enabled">
         <label for="">是否激活</label>
       </div>
-      <input type="hidden" name="enabled">
     </div>
-    <div class="ui inline image field">
+    <div class="ui inline field">
       <label for="">图标</label>
       <div>
-        <centered-image img={ urljoin(config.backend, item.picPath) }></centered-image>
+        <centered-image img={ item.pic.url }></centered-image>
         <input type="hidden" name="picPath" value={ item.picPath }>
       </div>
-      <button class="ui tiny button" disabled={ !opts.editing }>上传图片
+      <button class="file ui tiny button" disabled={ !opts.editing }>上传图片
         <input type="file">
       </button>
     </div>
@@ -50,18 +47,19 @@ require('tags/centered-image.tag');
       <input type="submit" class="ui green button" if={ opts.editing } value="提交"></input>
     </div>
   </form>
+  <style scoped>
+
+  </style>
   <script>
     var self = this;
     self.mixin(bus.Mixin);
     _.extend(self, {
-      urljoin: urljoin,
-      config: config,
       formData: function () {
         var item = this.item;
         return _.object(this.$form.serializeArray().filter(function (i) {
           return !item || item[i.name] != i.value;
         }).map(function (i) {
-          return [i.name, i.name === 'enabled'? i.value === 'true': i.value];
+          return [i.name, i.name === 'enabled'? i.value === 'on': i.value];
         }));
       },
     });
@@ -97,7 +95,7 @@ require('tags/centered-image.tag');
               timeOut: 1000,
             });
           } else {
-            bus.trigger('spuType.update', _.extend({}, self.item), self.formData());
+            bus.trigger('spuType.update', _.extend({}, self.item), formData);
           }
         } else {
           request('/spu/spu-type-list?name=' + this.name.value).done(function (res) {
@@ -115,11 +113,7 @@ require('tags/centered-image.tag');
         e.preventDefault();
         return false;
       });
-      self.$form.find('.ui.checkbox').checkbox({
-        onChange: function () {
-          self.$form.find('[name=enabled]').val($(this).is(':checked'));
-        },
-      });
+      self.$form.find('.ui.checkbox').checkbox();
       self.$form.find('[type=file]').change(function (e) {
         var file = e.currentTarget.files[0];
         var fr = new FileReader();
@@ -139,8 +133,6 @@ require('tags/centered-image.tag');
       self.update();
     }).on('spuType.fetched', function (item) {
       self.item = item;
-      self.update();
-    }).on('spuType.fetch.done', function () {
       self.loading = false;
       self.update();
     }).on('spuType.updated', function (item, patch) {
@@ -157,20 +149,20 @@ require('tags/centered-image.tag');
         timeOut: 1000,
       });
       _.assign(self.item, oldItem);
-    }).on('asset.upload.done', function (paths) {
+    }).on('asset.uploaded', function (paths) {
       $(self.root).find('[name=picPath]').val(paths[0]);
     }).on('asset.upload.failed', function () {
       toastr.error('上传失败！', '', {
         positionClass: 'toast-bottom-center',
         timeOut: 1000,
       });
-    }).on('asset.upload.end', function () {
+    }).on('asset.upload.done', function () {
       self.$fileInput.val('');
     }).on('spuType.created', function (item) {
       swal({
         type: 'success',
         title: '',
-        text: 'spu分类创建成功，是否继续编辑?',
+        text: '创建成功，是否继续编辑?',
         showCancelButton: true,
       }, function (confirmed) {
         bus.trigger('go', confirmed? '/spu-type/' + item.id: '/spu-type-list');

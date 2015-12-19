@@ -14,9 +14,10 @@ require('semantic-ui/semantic.js');
 
 require('tags/login-app.tag');
 require('tags/spu-type-list-app.tag');
-require('tags/nav-bar.tag');
 require('tags/spu-type-app.tag');
+require('tags/nav-bar.tag');
 require('tags/spu-list-app.tag');
+require('tags/spu-app.tag');
 require('tags/vendor-list-app.tag');
 require('tags/retailer-list-app.tag');
 require('tags/sku-list-app.tag');
@@ -32,12 +33,6 @@ if (config.env === 'development') {
     };
 }
 
-var setTitle = function (title) {
-    return function (ctx, next) {
-        document.title = title;
-        next();
-    };
-};
 
 var workspace = {
     stores: [],
@@ -52,6 +47,15 @@ workspace.on('login.required logout.done', function () {
 }).on('error', function (err) {
     console.error(err);
 });
+
+// VIEWS
+//
+var setTitle = function (title) {
+    return function (ctx, next) {
+        document.title = title;
+        next();
+    };
+};
 
 var resetStores = function (ctx, next) {
     bus.clear();
@@ -140,6 +144,18 @@ var spuType = function (ctx, next) {
     ctx.params.id && bus.trigger('spuType.fetch', ctx.params.id);
 };
 
+var spu = function (ctx, next) {
+    bus.register(spuStore);
+    bus.register(spuTypeStore);
+    bus.register(vendorStore);
+    bus.register(assetStore);
+    workspace.app = riot.mount('#main', 'spu-app', { ctx: ctx })[0];
+    workspace.appName = 'spu';
+    ctx.params.id && bus.trigger('spu.fetch', ctx.params.id);
+    bus.trigger('spuType.list.fetch');
+    bus.trigger('vendor.list.fetch');
+}
+
 page(function (ctx, next) {
     var qs = ctx.querystring;
     ctx.query = {};
@@ -204,6 +220,8 @@ page('/sku-list', function (ctx, next) {
 }, resetStores, loginRequired, navBar, setTitle('乐鉴-SKU列表'), skuList);
 
 page('/spu-type/:id?', resetStores, loginRequired, navBar, spuType);
+page('/spu/:id?', resetStores, loginRequired, navBar, spu);
+
 page('/', '/spu-list');
 
 page();

@@ -10,15 +10,15 @@ var Assets = function () {
     var self = this;
     riot.observable(this);
 
-    this.on('asset.upload', function (file, filename) {
-        self.upload(file, filename);
+    this.on('asset.upload', function (file, filename, ...piggypack) {
+        self.upload(file, filename, ...piggypack);
     });
     this.on('asset.delete', function (path) {
         self.delete(path);
     });
 };
 
-Assets.prototype.upload = function (file, filename) {
+Assets.prototype.upload = function (file, filename, ...piggypack) {
     var fd = new FormData();
     filename && fd.append('x-filenames', JSON.stringify([filename]));
     fd.append('files', file);
@@ -48,15 +48,15 @@ Assets.prototype.upload = function (file, filename) {
             return myXhr;
         },
         beforeSend: function () {
-            bus.trigger('before.asset.upload');
+            bus.trigger('before.asset.upload', filename, ...piggypack);
         },
     }).done(function (data) {
-        bus.trigger('asset.upload.done', data.paths);
+        bus.trigger('asset.uploaded', data.paths, filename, ...piggypack);
     }).fail(function () {
         console.error('failed to upload');
-        bus.trigger('asset.upload.failed');
+        bus.trigger('asset.upload.failed', filename, ...piggypack);
     }).always(function () {
-        bus.trigger('asset.upload.end');
+        bus.trigger('asset.upload.done');
     });
 };
 

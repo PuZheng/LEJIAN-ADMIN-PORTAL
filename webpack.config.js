@@ -51,6 +51,7 @@ module.exports = {
             { test: /\.tag$/, exclude: /node_modules/, loader: 'riotjs-loader', query: { type: 'none' } }
         ],
         loaders: [
+            { test: /\.js$|\.tag$/, exclude: /node_modules|vendors/, loader: '6to5-loader' },
             { test: /\.css$/, loader: "style!css" },
             { test: /\.json/, loader: "json-loader" },
             { test: /\.(png|gif|jpg)$/, loader: "url-loader?limit=100000" },
