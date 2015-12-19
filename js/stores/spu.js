@@ -13,6 +13,8 @@ var SPUStore = function () {
         this.create(data);
     }).on('spu.fetch', function (id) {
         this.fetch(id);
+    }).on('spu.update', function (oldItem, patch) {
+        this.update(oldItem, patch);
     });
 };
 
@@ -73,6 +75,20 @@ SPUStore.prototype.fetch = function (id) {
         bus.trigger('spu.fetch.failed', err, id);
         bus.trigger('spu.fetch.done');
         d.reject(err, id);
+    });
+    return d;
+};
+
+SPUStore.prototype.update = function (oldItem, patch) {
+    var d = $.Deferred();
+    bus.trigger('spu.updating', oldItem, patch);
+    request.put('/spu/spu/' + oldItem.id, patch).done(function (res) {
+        bus.trigger('spu.updated', res.body, oldItem, patch);
+        bus.trigger('spu.update.done');
+    }).fail(function (err, res) {
+        bus.trigger('spu.update.failed', err, oldItem, patch);
+        bus.trigger('spu.update.done');
+        d.reject(err, oldItem, patch);
     });
     return d;
 };

@@ -14,37 +14,37 @@ var swal = require('sweetalert/sweetalert.min.js');
     <loader if={ loading }></loader>
     <div class="ui error message">
     </div>
-    <div class="required inline field { !opts.editable && 'disabled' }">
+    <div class="required inline field">
       <label for="">名称</label>
-      <input type="text" placeholder="输入名称..." name="name" value={ item.name }>
+      <input type="text" placeholder="输入名称..." name="name" value={ item.name } disabled={ !opts.editable }>
     </div>
-    <div class="required inline field { !opts.editable && 'disabled' }">
+    <div class="required inline field">
       <label for="">code</label>
-      <input type="text" placeholder="输入code..." name="code" value={ item.code }>
+      <input type="text" placeholder="输入code..." name="code" value={ item.code } disabled={ !opts.editable }>
     </div>
-    <div class="required inline field { !opts.editable && 'disabled' }">
+    <div class="required inline field">
       <label for="">零售价</label>
-      <input type="number" placeholder="输入零售价..." name="msrp" value={ item.msrp }>
+      <input type="number" placeholder="输入零售价..." name="msrp" value={ item.msrp } disabled={ !opts.editable }>
       <span>(元)</span>
     </div>
-    <div class="{ !opts.editable && 'disabled' } inline field">
+    <div class="inline field">
       <div class="ui checkbox">
         <label for="">是否激活</label>
-        <input type="checkbox" name="enabled" checked={ item && item.enabled }>
+        <input type="checkbox" name="enabled" checked={ item && item.enabled } disabled={ !opts.editable }>
       </div>
     </div>
-    <div class="inline field { !opts.editable && 'disabled' }">
+    <div class="inline field">
       <label for="">评分(1-5)</label>
-      <input type="number" placeholder="输入评分" step="1" name="rating" min="1" max="5" value={ (item && item.rating) || 1}>
+      <input type="number" placeholder="输入评分" step="1" name="rating" min="1" max="5" value={ (item && item.rating) || 1} disabled={ !opts.editable }>
     </div>
-    <div class="inline field { !opts.editable && 'disabled' }">
+    <div class="inline field">
       <label for="">描述</label>
-      <textarea name="description" cols="30" rows="10">{ item.description }</textarea>
+      <textarea name="description" cols="30" rows="10" disabled={ !opts.editable }>{ item.description }</textarea>
     </div>
-    <div class="required inline field { !opts.editable && 'disabled' }">
+    <div class="required inline field">
       <label for="">所属分类</label>
-      <div class="spu-type ui fluid search selection dropdown">
-        <input type="hidden" name="spu_type_id" value={ item.spuTypeId }>
+      <div class="{ !opts.editable && 'disabled' } spu-type ui fluid search selection dropdown">
+        <input type="hidden" name="spuTypeId" value={ item.spuTypeId }>
         <i class="dropdown icon"></i>
         <div class="default text">选择分类</div>
         <div class="menu">
@@ -52,10 +52,10 @@ var swal = require('sweetalert/sweetalert.min.js');
         </div>
       </div>
     </div>
-    <div class="required inline field { !opts.editable && 'disabled' }">
+    <div class="required inline field">
       <label for="">厂商</label>
-      <div class="vendor ui fluid search selection dropdown">
-        <input type="hidden" name="vendor_id" value={ item.vendorId }>
+      <div class="{ !opts.editable && 'disabled' } vendor ui fluid search selection dropdown">
+        <input type="hidden" name="vendorId" value={ item.vendorId }>
         <i class="dropdown icon"></i>
         <div class="default text">选择厂商</div>
         <div class="menu">
@@ -63,9 +63,10 @@ var swal = require('sweetalert/sweetalert.min.js');
         </div>
       </div>
     </div>
-    <div class="inline field { !opts.editable && 'disabled' }">
+    <div class="inline field">
       <label for="">图片</label>
-      <div riot-tag="gallery" images={ item.pics }></div>
+      <div riot-tag="gallery" editable={ opts.editable }></div>
+      <input type="hidden" name="picPaths">
     </div>
     <hr>
     <div class="ui buttons">
@@ -89,14 +90,12 @@ var swal = require('sweetalert/sweetalert.min.js');
         return [o.name, o.value];
       }).object().value();
       ret.enabled = ret.enabled === 'on';
+      ret.picPaths = ret.picPaths && ret.picPaths.split(',');
       if (ret.msrp === '') {
         delete ret.msrp;
       } else {
         ret.msrp = parseFloat(ret.msrp);
       }
-      ret.pics = self.tags['gallery'].images.map(function (im) {
-        return im.url
-      });
       return ret;
     };
     self.diff = function () {
@@ -104,17 +103,15 @@ var swal = require('sweetalert/sweetalert.min.js');
         return self.formData();
       } else {
         var formData = self.formData();
-        var diff = {};
-        _(formData).pairs().each(function (pair) {
+        var diff = _(formData).pairs().filter(function (pair) {
           var k = pair[0];
           var v = pair[1];
-          if (v != self[k]) {
-            if (k === 'pics') {
-            } else {
-              diff[k] = v;
-            }
+          if (k !== 'picPaths') {
+            return self.item[k] != v;
+          } else {
+            return self.item.picPaths.join(',') !== v.join(',');
           }
-        });
+        }).object().value();
         return diff;
       }
     };
@@ -157,7 +154,7 @@ var swal = require('sweetalert/sweetalert.min.js');
             ]
           },
           spuType: {
-            identifier: 'spu_type_id',
+            identifier: 'spuTypeId',
             rules: [
               {
                 type: 'empty',
@@ -166,7 +163,7 @@ var swal = require('sweetalert/sweetalert.min.js');
             ]
           },
           vendor: {
-            identifier: 'vendor_id',
+            identifier: 'vendorId',
             rules: [
               {
                 type: 'empty',
@@ -180,7 +177,7 @@ var swal = require('sweetalert/sweetalert.min.js');
         onSuccess: function () {
           if (self.item) {
             var diff = self.diff();
-            if (_.isEmpty(formData)) {
+            if (_.isEmpty(diff)) {
               toastr.info('没有变化！', '', {
                 positionClass: 'toast-bottom-center',
               timeOut: 1000,
@@ -193,7 +190,16 @@ var swal = require('sweetalert/sweetalert.min.js');
           }
         }
       });
-    }).on('spuType.list.fetching vendor.list.fetching spu.creating spu.fetching', function () {
+      self.tags['gallery'].on('remove', function (path) {
+        $(self.picPaths).val($(self.picPaths).val().split(',').filter(function (path_) {
+          return path_ != path;
+        }));
+        console.log('remove a new image ' + path);
+      }).on('add', function (path) {
+        $(self.picPaths).val($(self.picPaths).val() + ',' + path);
+        console.log('add a new image ' + path);
+      });
+    }).on('spuType.list.fetching vendor.list.fetching spu.creating spu.fetching spu.updating', function () {
       ++self.loading;
       self.update();
     }).on('spuType.list.fetched', function (data) {
@@ -204,7 +210,7 @@ var swal = require('sweetalert/sweetalert.min.js');
       self.vendors = data.data;
       self.update();
       $(self.root).find('.vendor.dropdown').dropdown();
-    }).on('spuType.list.fetch.done vendor.list.fetch.done spu.create.done spu.fetch.done', function () {
+    }).on('spuType.list.fetch.done vendor.list.fetch.done spu.create.done spu.fetch.done spu.update.done', function () {
       --self.loading;
       self.update();
     }).on('spu.created', function (item) {
@@ -218,9 +224,10 @@ var swal = require('sweetalert/sweetalert.min.js');
       });
     }).on('spu.fetched', function (item) {
       self.item = item;
-      self.item.pics = self.item.pics.map(function (pic) {
-        return urljoin(config.backend, pic);
-      })
+      self.tags['gallery'].addImages(item.pics);
+      $(self.picPaths).val(item.pics.map(function (pic) {
+        return pic.path;
+      }));
       self.update();
     }).on('spu.updated', function (item, patch) {
       self.item = item;
@@ -236,6 +243,9 @@ var swal = require('sweetalert/sweetalert.min.js');
         timeOut: 1000,
       });
       _.assign(self.item, oldItem);
+      self.update();
+    }).on('error', function (err) {
+      console.error(err);
     });
   </script>
 </spu-form>

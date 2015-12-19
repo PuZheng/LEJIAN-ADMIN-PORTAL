@@ -1,7 +1,5 @@
 var riot = require('riot');
 var bus = require('riot-bus');
-var config = require('config');
-var urljoin = require('url-join');
 var toastr = require('toastr/toastr.min.js');
 require('toastr/toastr.min.css');
 var request = require('request');
@@ -37,7 +35,7 @@ require('tags/centered-image.tag');
     <div class="ui inline field">
       <label for="">图标</label>
       <div>
-        <centered-image img={ urljoin(config.backend, item.picPath) }></centered-image>
+        <centered-image img={ item.pic.url }></centered-image>
         <input type="hidden" name="picPath" value={ item.picPath }>
       </div>
       <button class="file ui tiny button" disabled={ !opts.editing }>上传图片
@@ -56,8 +54,6 @@ require('tags/centered-image.tag');
     var self = this;
     self.mixin(bus.Mixin);
     _.extend(self, {
-      urljoin: urljoin,
-      config: config,
       formData: function () {
         var item = this.item;
         return _.object(this.$form.serializeArray().filter(function (i) {

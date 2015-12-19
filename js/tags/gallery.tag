@@ -6,19 +6,15 @@ require('toastr/toastr.min.css');
 <gallery>
   <div class="ui segment">
     <div class="ui small images">
-      <div class="ui circular huge green icon file button">
+      <div class="ui circular huge green icon file button { !opts.editable && 'disabled' }">
         <i class="icon upload"></i>
         <input type="file">
       </div>
-      <div class="ui medium image" each={ images }>
-        <div class="ui dimmer">
-          <div class="content">
-            <div class="center">
-              <div class="remove ui red button" data-url={ url }>删除</div>
-            </div>
-          </div>
-        </div>
-        <img class="ui image" src={ dataURL || url }>
+      <div class="ui fluid image" each={ images }>
+        <a class="remove ui red right corner label" data-path={ path } show={ parent.opts.editable }>
+          <i class="trash icon"></i>
+        </a>
+        <img src={ url }>
       </div>
     </div>
     <div class="ui bottom attached progress">
@@ -35,16 +31,12 @@ require('toastr/toastr.min.css');
         return ++uuid;
       }
     }();
+    self.addImages = function (images) {
+        self.images = self.images.concat(images);
+        self.update();
+    };
 
-    self.on('update', function () {
-      if (!_.isEmpty(opts.images)) {
-        self.images = opts.images.map(function (im) {
-          return {
-            url: im,
-          };
-        });
-      }
-    }).on('mount', function () {
+    self.on('mount', function () {
       self.$progress = $(self.root).find('.progress');
       self.$fileInput = $(self.root).find('[type=file]');
       self.$fileInput.change(function (e) {
@@ -54,28 +46,31 @@ require('toastr/toastr.min.css');
         fr.onload = function (e) {
           var data = e.target.result;
           self.images.push({
-            dataURL: data,
+            url: data,
             uuid: uuid,
           });
           self.update();
-          $(self.root).find('.image').dimmer({
-            on: 'hover'
-          });
         };
         fr.readAsDataURL(file);
         bus.trigger('asset.upload', file, '', uuid);
       });
-      $(self.root).on('click', '.remove.button', function (e) {
-        var target = $(e.currentTarget).data('url');
+      $(self.root).on('click', '.remove.label', function (e) {
+        var target = $(e.currentTarget).data('path');
         self.images = self.images.filter(function (im) {
-          return im.url !== target;
+          return im.path !== target;
         });
+        self.trigger('remove', target);
         self.update();
-      })
+      });
+      if (!_.isEmpty(opts.images)) {
+        self.images = opts.images;
+        self.update();
+      }
     }).on('asset.uploaded', function (paths, filename, uuid) {
       _(self.images).filter(function (image) {
         return image.uuid === uuid;
-      }).first().url = paths[0];
+      }).first().path = paths[0];
+      self.trigger('add', paths[0]);
       self.update();
     }).on('asset.upload.done', function () {
       self.$fileInput.val('');

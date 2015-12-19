@@ -1,7 +1,5 @@
 var riot = require('riot');
 var bus = require('riot-bus');
-var urljoin = require('url-join');
-var config = require('config');
 require('magnific-popup/magnific-popup.css');
 require('magnific-popup/jquery.magnific-popup.js');
 
@@ -38,8 +36,8 @@ require('magnific-popup/jquery.magnific-popup.js');
           { item.name }
         </td>
         <td>
-          <a href={ urljoin(config.backend, item.picPath) } class="image-link">
-            <centered-image img={ urljoin(config.backend, item.picPath) } class="ui tiny image"></centered-image>
+          <a href={ item.pic.url } class="image-link">
+            <centered-image img={ item.pic.url } class="ui tiny image"></centered-image>
           </a>
         </td>
         <td>{ item.spuCnt }</td>
@@ -53,8 +51,6 @@ require('magnific-popup/jquery.magnific-popup.js');
   <script>
     var self = this;
     self.mixin(bus.Mixin);
-    self.urljoin = urljoin;
-    self.config = config;
     self.selected = new Set();
 
     self.on('mount', function () {
