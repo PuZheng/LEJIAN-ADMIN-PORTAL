@@ -54,7 +54,7 @@ SPUTypeStore.prototype.fetchList = function (query) {
         bus.trigger('spuType.list.fetch.done');
         d.resolve(data);
     } else {
-        request('/spu/spu-type-list').done(function (res) {
+        request('/spu-type/list.json').done(function (res) {
             this.items = res.body.data;
             var data = {
                 data: setupItems(query, this.items)
