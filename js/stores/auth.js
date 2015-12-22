@@ -6,8 +6,8 @@ var noCache = require('superagent-no-cache');
 
 var Auth = function () {
     riot.observable(this);
-    this.on('login', function (emailOrName, password) {
-        this.login(emailOrName, password);
+    this.on('login', function (email, password) {
+        this.login(email, password);
     });
     this.on('logout', function () {
         this.logout();
@@ -18,7 +18,7 @@ var Auth = function () {
     });
 };
 
-Auth.prototype.login = function (emailOrName, password) {
+Auth.prototype.login = function (email, password) {
     var self = this;
     bus.trigger('login.start');
     agent.post(config.backend + '/auth/login')
@@ -26,7 +26,7 @@ Auth.prototype.login = function (emailOrName, password) {
     .type('json')
     .accept('json')
     .send({
-        emailOrName: emailOrName,
+        email: email,
         password: password
     })
     .end(function (err, res) {
@@ -40,7 +40,7 @@ Auth.prototype.login = function (emailOrName, password) {
     });
 };
 
-Auth.prototype.logout = function (emailOrName, password) {
+Auth.prototype.logout = function (email, password) {
     self._user = null;
     sessionStorage.removeItem('user');
     bus.trigger('logout.done');

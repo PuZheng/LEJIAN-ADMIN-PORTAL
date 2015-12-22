@@ -2,6 +2,7 @@ var riot = require('riot');
 var loader = require('./loader.tag');
 var bus = require('riot-bus');
 var page = require('page');
+require('semantic-ui/semantic.min.js');
 
 <login-app>
   <div class="ui page grid">
@@ -12,12 +13,12 @@ var page = require('page');
           <h3>登录</h3>
         </div>
         <div class="ui attached segment">
-          <form class="ui form" action="#" method="POST">
+          <form class="ui form" action="" method="POST">
             <div class="ui error message">
             </div>
             <div class="required field">
-              <label for="">邮箱或用户名</label>
-              <input type="text" name="email_or_name">
+              <label for="">邮箱</label>
+              <input type="text" name="email">
             </div>
             <div class="required field">
               <label>密码</label>
@@ -38,10 +39,10 @@ var page = require('page');
     var self = this;
     self.mixin(bus.Mixin);
     self.on('mount', function () {
-      $('form').form({
+      $(self.root).find('form').form({
         fields: {
-          email_or_name: {
-            identifier: 'email_or_name',
+          email: {
+            identifier: 'email',
             rules: [
               {
                 type: 'empty',
@@ -61,7 +62,7 @@ var page = require('page');
         },
         trigger: 'blur',
         onSuccess: function () {
-          bus.trigger('login', self.email_or_name.value, self.password.value);
+          bus.trigger('login', self.email.value, self.password.value);
         },
         keyboardShortcuts: false
       }).on('submit', function () {

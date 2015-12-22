@@ -15,7 +15,7 @@ function request() {
         method === 'delete' && (method = 'del');
         var a = agent[method](urljoin(config.backend, url)).use(noCache);
         !!data && (a = a.send(data));
-        a.set('Authorization', 'JWT ' + auth.user().token)
+        a.set('Authorization', 'Bearer ' + auth.user().token)
         .type('json').accept('json').end(function (err, res) {
             if (err) {
                 console.error(err);

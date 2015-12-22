@@ -9,6 +9,7 @@ var resolvePath = function(componentPath) {
 module.exports = {
     entry: {
         'main': ['./js/main.js'],
+        'test/auth': ['./js/test/auth.js'],
     },
     output: {
         path: __dirname + '/js/bundle/',

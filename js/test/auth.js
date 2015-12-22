@@ -42,13 +42,13 @@ var tag;
 
 describe('login-app', function () {
     before(function () {
-        $('<div id="main"></div>').appendTo($('body'));
+        $('<div id="main" style="display: none"></div>').appendTo($('body'));
         tag = riot.mount('#main', 'login-app')[0];
     });
     it('submit the form, "login" will be sent to bus', function () {
-        $(tag.email_or_name).val('admin@lejian.com');
+        $(tag.email).val('admin@lejian.com');
         $(tag.password).val('admin');
-        var $form = $(tag.root).find('.ui.form');
+        var $form = $(tag.root).find('form');
         $form.find(':submit').click();
         fakeBus.trigger.calledWith('login', 'admin@lejian.com', 'admin');
     });
@@ -58,7 +58,7 @@ describe('login-app', function () {
         fakeBus.trigger.calledWith('go', '/');
     });
     it('trigger tag with "login.failed", error message will be displayed', function () {
-        var reason = '用户名或者密码错误';
+        var reason = '错误的邮箱或者密码';
         tag.trigger('login.failed', reason);
         expect($(tag.root).find('.error.message')).to.have.text(reason);
     });

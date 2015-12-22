@@ -27,7 +27,7 @@ var page = require('page');
         <div class="fitted item">
           <i class="icon user"></i>
           <span class="ui teal tiny header">
-            { opts.ctx.user.name || opts.ctx.user.email }
+            { opts.ctx.user.email }
           </span>
         </div>
         <i class="dropdown icon"></i>
@@ -45,7 +45,6 @@ var page = require('page');
     </div>
   </nav>
   <style scoped>
-
     .ui.header {
       margin-top: 0;
     }
