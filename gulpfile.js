@@ -9,6 +9,7 @@ var rename = require('gulp-rename');
 var postcss = require('gulp-postcss');
 var precss = require('precss');
 var livereload = require('gulp-livereload');
+var spawn = require('child_process').spawn;
 
 gulp.task('compile', function () {
     var config = require('./convict-def.js');
@@ -90,8 +91,6 @@ gulp.task('webpack-dev-server', function(callback) {
     });
 });
 
-gulp.task('default', ['template-compile', 'watch', 'webpack-dev-server']);
-
 gulp.task('test', function () {
     return gulp.src('test/test-auth.html')
     .pipe(require('gulp-mocha-phantomjs')());
@@ -102,3 +101,9 @@ gulp.task('css', function () {
         precss,
     ])).pipe(gulp.dest('./css')).pipe(livereload());
 });
+
+gulp.task('serve', function () {
+    spawn('webpack-dev-server', ['--inline', '--progress', '--config', './webpack.hot.config.js'], { stdio: 'inherit' });
+});
+
+gulp.task('default', ['compile', 'watch', 'serve']);
