@@ -18,7 +18,6 @@ require('tags/loader.tag');
       <a class="ui tiny icon green circular button" href="/spu-type" data-content="创建SPU分类">
         <i class="icon plus"></i>
       </a>
-      <a riot-tag="batch-delete-btn" data-content="删除SPU分类" handler={ delete } ctx={ opts.ctx } success-event='spuType.deleted'></a>
       <div class="ui search">
         <div class="ui icon input">
           <input class="prompt" type="text" placeholder="按名称过滤..." name="search" onkeyup={ doSearch } value={ opts.ctx.query.kw }>
@@ -56,41 +55,6 @@ require('tags/loader.tag');
               }, 500);
             }
           };
-        }
-      },
-      delete: function () {
-        var selected = Array.from(self.tags['spu-type-table'].selected);
-        if (!selected.length) {
-          swal({
-            type: 'info',
-            title: '',
-            text: '请至少选择一个SPU类型',
-          });
-        } else {
-          if (selected.some(function (id) {
-            var item = self.tags['spu-type-table'].items.filter(function (item) {
-              return item.id === parseInt(id);
-            })[0];
-            return item.spuCnt > 0;
-          })) {
-            swal({
-              type: 'error',
-              title: '',
-              text: '只能删除不包含SPU的SPU分类!'
-            });
-            return;
-          }
-          swal({
-            type: 'warning',
-            title: '',
-            text: '您确认要删除选中的SPU类型?',
-            showCancelButton: true,
-            closeOnConfirm: false,
-          }, function (confirmed) {
-            if (confirmed) {
-              bus.trigger('spuType.delete', selected);
-            }
-          });
         }
       },
     });

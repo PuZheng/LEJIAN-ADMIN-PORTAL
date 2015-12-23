@@ -25,10 +25,6 @@ var swal = require('sweetalert/sweetalert.min.js');
           <button class="ui tiny circular icon button" data-content="锁定对象" onclick={ onCancelEdit } show={ opts.ctx.params.id && editing }>
             <i class="icon lock"></i>
           </button>
-
-          <button class="ui tiny circular icon red button" data-content="删除对象" onclick={ onClickDelete } show={ opts.ctx.params.id }>
-            <i class="icon trash"></i>
-          </button>
         </div>
         <div class="ui bottom attached segment">
           <spu-type-form editing={ editing }></spu-type-form>
@@ -107,19 +103,6 @@ var swal = require('sweetalert/sweetalert.min.js');
     }).on('spuType.fetched', function (item) {
       self.item = item;
       self.update();
-    }).on('spuType.deleted', function () {
-      swal({
-        type: 'success',
-        title: '成功删除!',
-      }, function () {
-        bus.trigger('go', '/');
-      });
-    }).on('spuType.delete.failed', function () {
-      swal.close();
-      toastr.error('删除失败！', '', {
-        positionClass: 'toast-bottom-center',
-        timeOut: 1000,
-      });
     });
   </script>
 </spu-type-app>
