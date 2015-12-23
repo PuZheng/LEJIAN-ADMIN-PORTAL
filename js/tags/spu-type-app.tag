@@ -31,7 +31,7 @@ var swal = require('sweetalert/sweetalert.min.js');
           </button>
         </div>
         <div class="ui bottom attached segment">
-          <spu-type-form editing={ editing } item-id={ item.id }></spu-type-form>
+          <spu-type-form editing={ editing }></spu-type-form>
         </div>
       </div>
     </div>
@@ -56,13 +56,10 @@ var swal = require('sweetalert/sweetalert.min.js');
 
     _.extend(self, {
       onClickEdit: function (e) {
-        self.editing = true;
-        self.update();
+        bus.trigger('go', opts.ctx.pathname + '?editing=1');
       },
       onCancelEdit: function (e) {
-        e.preventDefault();
-        self.editing = false;
-        self.update();
+        bus.trigger('go', opts.ctx.pathname);
       },
       onClickDelete: function (e) {
         e.preventDefault();
@@ -85,12 +82,13 @@ var swal = require('sweetalert/sweetalert.min.js');
           });
         }
       },
-      editing: !opts.ctx.params.id, // 创建模式下，默认可编辑
     });
 
     self.on('mount', function () {
       $(self.root).find('[data-content]').popup();
       nprogress.configure({ trickle: false });
+    }).on('update', function () {
+      self.editing = !self.opts.ctx.params.id || self.opts.ctx.query.editing === '1'; // 创建模式下，默认可编辑
     }).on('before.asset.update', function () {
       nprogress.start();
       self.update();

@@ -154,7 +154,7 @@ var spu = function (ctx, next) {
     ctx.params.id && bus.trigger('spu.fetch', ctx.params.id);
     bus.trigger('spuType.list.fetch');
     bus.trigger('vendor.list.fetch');
-}
+};
 
 page(function (ctx, next) {
     var qs = ctx.querystring;
@@ -219,7 +219,14 @@ page('/sku-list', function (ctx, next) {
     }
 }, resetStores, loginRequired, navBar, setTitle('乐鉴-SKU列表'), skuList);
 
-page('/spu-type/:id?', resetStores, loginRequired, navBar, spuType);
+page('/spu-type/:id?', function (ctx, next) {
+    if (workspace.appName === 'spu-type') {
+        workspace.app.opts = { ctx: ctx };
+        workspace.app.update();
+    } else {
+        next();
+    }
+}, resetStores, loginRequired, navBar, spuType);
 page('/spu/:id?', resetStores, loginRequired, navBar, spu);
 
 page('/', '/spu-list');
