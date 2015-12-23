@@ -56,11 +56,18 @@ require('tags/centered-image.tag');
     _.extend(self, {
       formData: function () {
         var item = this.item;
-        return _.object(this.$form.serializeArray().filter(function (i) {
-          return !item || item[i.name] != i.value;
-        }).map(function (i) {
-          return [i.name, i.name === 'enabled'? i.value === 'on': i.value];
-        }));
+        var data = _.object(this.$form.serializeArray().map(
+          function ({name, value}) {
+            return [name, value];
+          }
+        ));
+        // serialize will omit checkbox when it is unchecked
+        if (data.enabled) {
+          data.enabled = true;
+        } else {
+          data.enabled = false;
+        }
+        return data;
       },
     });
     var formOpts = {

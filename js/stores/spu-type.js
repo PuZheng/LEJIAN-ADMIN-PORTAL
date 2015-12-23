@@ -54,7 +54,7 @@ SPUTypeStore.prototype.fetchList = function (query) {
         bus.trigger('spuType.list.fetch.done');
         d.resolve(data);
     } else {
-        request('/spu-type/list.json').done(function (res) {
+        request('/spu-type/list').done(function (res) {
             this.items = res.body.data;
             var data = {
                 data: setupItems(query, this.items)
@@ -76,7 +76,7 @@ SPUTypeStore.prototype.update = function (item, patch) {
     var cached = this.items && this.items.filter(function (i) {
         return i.id === item.id;
     })[0];
-    request.put('/spu/spu-type/' + item.id, patch).done(function (res) {
+    request.put('/spu-type/object/' + item.id, patch).done(function (res) {
         cached && _.assign(cached, res.body);
         bus.trigger('spuType.updated', res.body, patch);
         bus.trigger('spuType.update.done');
@@ -88,7 +88,7 @@ SPUTypeStore.prototype.update = function (item, patch) {
 
 SPUTypeStore.prototype.fetch = function (id) {
     bus.trigger('spuType.fetching');
-    request('/spu/spu-type/' + id).done(function (res) {
+    request('/spu-type/object/' + id).done(function (res) {
         bus.trigger('spuType.fetched', res.body);
         bus.trigger('spuType.fetch.done');
     }).fail(function (err, res) {
@@ -117,7 +117,7 @@ SPUTypeStore.prototype.delete = function (ids) {
 
 SPUTypeStore.prototype.create = function (data) {
     bus.trigger('spuType.creating');
-    request.post('/spu-type/object.json', data).done(function (res) {
+    request.post('/spu-type/object', data).done(function (res) {
         bus.trigger('spuType.created', res.body);
         bus.trigger('spuType.create.done');
     }).fail(function (err, res) {
