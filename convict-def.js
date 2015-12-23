@@ -17,7 +17,7 @@ var conf = convict({
     uploadTo: {
         doc: "upload to",
         format: "url",
-        default: "http://127.0.0.1:5000/upload",
+        default: "http://127.0.0.1:5000/assets",
         env: "UPLOAD_TO"
     }
 });

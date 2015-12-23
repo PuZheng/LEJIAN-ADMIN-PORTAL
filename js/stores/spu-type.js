@@ -117,7 +117,7 @@ SPUTypeStore.prototype.delete = function (ids) {
 
 SPUTypeStore.prototype.create = function (data) {
     bus.trigger('spuType.creating');
-    request.post('/spu/spu-type/', data).done(function (res) {
+    request.post('/spu-type/object.json', data).done(function (res) {
         bus.trigger('spuType.created', res.body);
         bus.trigger('spuType.create.done');
     }).fail(function (err, res) {

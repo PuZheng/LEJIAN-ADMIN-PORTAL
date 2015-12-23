@@ -20,7 +20,7 @@ gulp.task('compile', function () {
 
 gulp.task('watch', function () {
     livereload.listen();
-    gulp.watch(['js/config.js.tpl', 'convict-def.js'], ['template-compile']);
+    gulp.watch(['js/config.js.tpl', 'convict-def.js'], ['compile']);
     gulp.watch('postcss/*.css', ['css']);
     gulp.watch('js/tags/*.tag.tmpl', ['render']);
 });

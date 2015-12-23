@@ -98,13 +98,7 @@ require('tags/centered-image.tag');
             bus.trigger('spuType.update', _.extend({}, self.item), formData);
           }
         } else {
-          request('/spu/spu-type-list?name=' + this.name.value).done(function (res) {
-            if (!res.body.data.length) {
-              bus.trigger('spuType.create', self.formData());
-            } else {
-              self.$form.form('add errors', ['名称已经存在'])
-            }
-          });
+          bus.trigger('spuType.create', self.formData());
         }
       }
     };
@@ -151,6 +145,10 @@ require('tags/centered-image.tag');
       _.assign(self.item, oldItem);
     }).on('asset.uploaded', function (paths) {
       $(self.root).find('[name=picPath]').val(paths[0]);
+      toastr.success('上传成功!', '', {
+        positionClass: 'toast-bottom-center',
+        timeOut: 1000,
+      });
     }).on('asset.upload.failed', function () {
       toastr.error('上传失败！', '', {
         positionClass: 'toast-bottom-center',
@@ -167,7 +165,8 @@ require('tags/centered-image.tag');
       }, function (confirmed) {
         bus.trigger('go', confirmed? '/spu-type/' + item.id: '/spu-type-list');
       });
-    }).on('spuType.create.failed', function () {
+    }).on('spuType.create.failed', function (data, err) {
+      self.$form.form('add errors', [ err.response.body.message ]);
       toastr.error('创建失败！', '', {
         positionClass: 'toast-bottom-center',
         timeOut: 1000,
