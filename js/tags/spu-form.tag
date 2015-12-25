@@ -196,7 +196,8 @@ var swal = require('sweetalert/sweetalert.min.js');
         }));
         console.log('remove a new image ' + path);
       }).on('add', function (path) {
-        $(self.picPaths).val($(self.picPaths).val() + ',' + path);
+        var picPaths = $(self.picPaths).val();
+        $(self.picPaths).val((picPaths && picPaths + ',') + path);
         console.log('add a new image ' + path);
       });
     }).on('spuType.list.fetching vendor.list.fetching spu.creating spu.fetching spu.updating', function () {
