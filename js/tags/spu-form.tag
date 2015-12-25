@@ -39,7 +39,7 @@ var swal = require('sweetalert/sweetalert.min.js');
     </div>
     <div class="inline field">
       <label for="">描述</label>
-      <textarea name="description" cols="30" rows="10" disabled={ !opts.editable }>{ item.description }</textarea>
+      <textarea name="desc" cols="30" rows="10" disabled={ !opts.editable }>{ item.desc }</textarea>
     </div>
     <div class="required inline field">
       <label for="">所属分类</label>

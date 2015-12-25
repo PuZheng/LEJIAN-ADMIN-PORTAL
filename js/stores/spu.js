@@ -52,7 +52,7 @@ SPUStore.prototype.delete = function (ids) {
 SPUStore.prototype.create = function (data) {
     var d = $.Deferred();
     bus.trigger('spu.creating', data);
-    request.post('/spu/spu', data).done(function (res) {
+    request.post('/spu/object', data).done(function (res) {
         bus.trigger('spu.created', res.body, data);
         bus.trigger('spu.create.done');
         d.resolve(res.body, data);
