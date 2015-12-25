@@ -53,7 +53,7 @@ VendorStore.prototype.fetchList = function (query) {
             data: setupItems(this.items),
         }]);
     } else {
-        request('/vendor/vendor-list').done(function (res) {
+        request('/vendor/list').done(function (res) {
             this.items = res.body.data;
             done.apply(this, [{
                 data: setupItems(this.items)

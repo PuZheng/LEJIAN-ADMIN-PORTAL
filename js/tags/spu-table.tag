@@ -22,7 +22,7 @@ require('tags/loader.tag');
         <th>厂商</th>
         <th>分类</th>
         <th riot-tag="sortable-th" label="评分" name="rating" ctx={ opts.ctx }></th>
-        <th riot-tag="sortable-th" label="创建时间" name="create_time" ctx={ opts.ctx }></th>
+        <th riot-tag="sortable-th" label="创建时间" name="created_at" ctx={ opts.ctx }></th>
       </tr>
     </thead>
     <tbody>
@@ -38,7 +38,7 @@ require('tags/loader.tag');
         </td>
         <td>
           <div class="ui tiny image">
-            <img src="{ urlJoin(config.backend, icon) }" alt="">
+            <img src="{ icon.url }" alt="">
           </div>
         </td>
         <td>
@@ -60,7 +60,7 @@ require('tags/loader.tag');
           { rating }
         </td>
         <td>
-          { moment(createTime).format('YY-MM-DD HH时') }
+          { moment(createdAt).format('YY-MM-DD HH时') }
         </td>
       </tr>
     </tbody>
@@ -68,6 +68,11 @@ require('tags/loader.tag');
   <div class="ui teal message" if={ !loading && _.isEmpty(items) }>
     -- 没有数据 --
   </div>
+  <style scoped>
+    .tiny.image img {
+      max-width: 100% !important;
+    }
+  </style>
   <script>
     var self = this;
     self.mixin(bus.Mixin);

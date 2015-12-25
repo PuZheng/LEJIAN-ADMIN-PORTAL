@@ -21,7 +21,7 @@ var SPUStore = function () {
 SPUStore.prototype.fetchList = function (query) {
     var d = $.Deferred();
     bus.trigger('spu.list.fetching', query);
-    request('/spu/spu-list?' + buildQS(query)).done(function (res) {
+    request('/spu/list?' + buildQS(query)).done(function (res) {
         bus.trigger('spu.list.fetched', res.body);
         bus.trigger('spu.list.fetch.done');
         d.resolve(res.body);
@@ -36,7 +36,7 @@ SPUStore.prototype.fetchList = function (query) {
 SPUStore.prototype.delete = function (ids) {
     var d = $.Deferred();
     bus.trigger('spu.deleting');
-    request.delete('/spu/spu-list?ids=' + ids.join(',')).done(function (res) {
+    request.delete('/spu/list?ids=' + ids.join(',')).done(function (res) {
         bus.trigger('spu.deleted', ids, res.body);
         bus.trigger('spu.delete.done');
         d.resolve(ids, res.body);
