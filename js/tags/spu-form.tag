@@ -24,7 +24,7 @@ var swal = require('sweetalert/sweetalert.min.js');
     </div>
     <div class="required inline field">
       <label for="">零售价</label>
-      <input type="number" placeholder="输入零售价..." name="msrp" value={ item.msrp } disabled={ !opts.editable }>
+      <input type="number" placeholder="输入零售价..." name="msrp" value={ item.msrp } step="0.01" disabled={ !opts.editable }>
       <span>(元)</span>
     </div>
     <div class="inline field">

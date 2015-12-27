@@ -15,12 +15,12 @@ require('tags/spu-form.tag');
             创建SPU
           </div>
           <i class="icon asterisk" if={ opts.ctx.params.id && editable }></i>
-          <button class="ui tiny circular icon green button" data-content="编辑对象" onclick={ onClickEdit } show={ opts.ctx.params.id && !editable }>
+          <a class="ui tiny circular icon green button" data-content="编辑对象" href={ opts.ctx.pathname + '?editable=1' } show={ opts.ctx.params.id && !editable }>
             <i class="icon edit"></i>
-          </button>
-          <button class="ui tiny circular icon button" data-content="锁定对象" onclick={ onCancelEdit } show={ opts.ctx.params.id && editable }>
+          </a>
+          <a class="ui tiny circular icon button" data-content="锁定对象" href={ opts.ctx.pathname } show={ opts.ctx.params.id && editable }>
             <i class="icon lock"></i>
-          </button>
+          </a>
           <button class="ui tiny circular icon red button" data-content="删除对象" onclick={ onClickDelete } show={ opts.ctx.params.id }>
             <i class="icon trash"></i>
           </button>
@@ -35,18 +35,11 @@ require('tags/spu-form.tag');
     var self = this;
     self.mixin(bus.Mixin);
 
-    self.editable = !opts.ctx.params.id;
-    self.onClickEdit = function () {
-      self.editable = true;
-      self.update();
-    };
-    self.onCancelEdit = function () {
-      self.editable = false;
-      self.update();
-    }
 
     self.on('mount', function () {
       $(self.root).find('[data-content]').popup();
+    }).on('update', function () {
+      self.editable = !self.opts.ctx.params.id || self.opts.ctx.query.editable === '1';
     }).on('spu.fetched', function (item) {
       self.item = item;
       self.update();

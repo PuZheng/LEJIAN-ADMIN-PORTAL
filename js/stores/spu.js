@@ -67,7 +67,7 @@ SPUStore.prototype.create = function (data) {
 SPUStore.prototype.fetch = function (id) {
     var d = $.Deferred();
     bus.trigger('spu.fetching', id);
-    request('/spu/spu/' + id).done(function (res) {
+    request('/spu/object/' + id).done(function (res) {
         bus.trigger('spu.fetched', res.body);
         bus.trigger('spu.fetch.done');
         d.resolve(res.body);
@@ -82,7 +82,7 @@ SPUStore.prototype.fetch = function (id) {
 SPUStore.prototype.update = function (oldItem, patch) {
     var d = $.Deferred();
     bus.trigger('spu.updating', oldItem, patch);
-    request.put('/spu/spu/' + oldItem.id, patch).done(function (res) {
+    request.put('/spu/object/' + oldItem.id, patch).done(function (res) {
         bus.trigger('spu.updated', res.body, oldItem, patch);
         bus.trigger('spu.update.done');
     }).fail(function (err, res) {

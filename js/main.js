@@ -227,7 +227,14 @@ page('/spu-type/:id?', function (ctx, next) {
         next();
     }
 }, resetStores, loginRequired, navBar, spuType);
-page('/spu/:id?', resetStores, loginRequired, navBar, spu);
+page('/spu/:id?', function (ctx, next) {
+    if (workspace.appName === 'spu') {
+        workspace.app.opts = { ctx: ctx };
+        workspace.app.update();
+    } else {
+        next();
+    }
+}, resetStores, loginRequired, navBar, spu);
 
 page('/', '/spu-list');
 
