@@ -2,8 +2,8 @@ var riot = require('riot');
 var bus = require('riot-bus');
 var config = require('config');
 var urljoin = require('url-join');
-var toastr = require('toastr/toastr.min.js');
 var request = require('request');
+var toastr = require('toastr/toastr.min.js');
 require('toastr/toastr.min.css');
 require('tags/centered-image.tag');
 require('tags/gallery.tag');
@@ -30,7 +30,7 @@ var swal = require('sweetalert/sweetalert.min.js');
     <div class="inline field">
       <div class="ui checkbox">
         <label for="">是否激活</label>
-        <input type="checkbox" name="enabled" checked={ item && item.enabled } disabled={ !opts.editable }>
+        <input type="checkbox" name="enabled" checked={ !item || item.enabled } disabled={ !opts.editable }>
       </div>
     </div>
     <div class="inline field">

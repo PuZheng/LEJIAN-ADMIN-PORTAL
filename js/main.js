@@ -21,6 +21,7 @@ require('tags/spu-app.tag');
 require('tags/vendor-list-app.tag');
 require('tags/retailer-list-app.tag');
 require('tags/sku-list-app.tag');
+require('tags/vendor-app.tag');
 
 var swal = require('sweetalert/sweetalert.min.js');
 require('sweetalert/sweetalert.css');
@@ -156,6 +157,13 @@ var spu = function (ctx, next) {
     bus.trigger('vendor.list.fetch');
 };
 
+var vendor = function (ctx, next) {
+    bus.register(vendorStore);
+    workspace.app = riot.mount('#main', 'vendor-app', {ctx: ctx})[0];
+    workspace.appName = 'vendor';
+    ctx.params.id && bus.trigger('vendor.fetch', ctx.params.id);
+};
+
 page(function (ctx, next) {
     var qs = ctx.querystring;
     ctx.query = {};
@@ -218,7 +226,6 @@ page('/sku-list', function (ctx, next) {
         next();
     }
 }, resetStores, loginRequired, navBar, setTitle('乐鉴-SKU列表'), skuList);
-
 page('/spu-type/:id?', function (ctx, next) {
     if (workspace.appName === 'spu-type') {
         workspace.app.opts = { ctx: ctx };
@@ -235,6 +242,14 @@ page('/spu/:id?', function (ctx, next) {
         next();
     }
 }, resetStores, loginRequired, navBar, spu);
+page('/vendor/:id?', function (ctx, next) {
+    if (workspace.appName === 'spu') {
+        workspace.app.opts = { ctx: ctx };
+        workspace.app.update();
+    } else {
+        next();
+    }
+}, resetStores, loginRequired, navBar, vendor);
 
 page('/', '/spu-list');
 
