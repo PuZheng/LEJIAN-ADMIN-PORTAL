@@ -31,17 +31,17 @@ require('tags/sortable-th.tag');
         <td>
           <i class="ui icon { item.enabled? 'green checkmark': 'red remove' }"></i>
         </td>
-        <td>{ item.telephone }</td>
-        <td>{ item.address }</td>
+        <td>{ item.tel }</td>
+        <td>{ item.addr }</td>
         <td>
           <a href={ item.website } target="_blank">{ item.website }</a>
         </td>
         <td>{ item.email }</td>
-        <td>{ item.weibo }</td>
+        <td>{ item.weiboUserId }</td>
         <td>
-          <a href="{ item.weiboLink }" target="_blank">{ item.weiboLink }</a>
+          <a href="{ item.weiboHomepage }" target="_blank">{ item.weiboHomepage }</a>
         </td>
-        <td>{ item.weixinNumber }</td>
+        <td>{ item.weixinAccount }</td>
         <td>{ moment(item.createTime).format('YY-MM-DD HH时') }</td>
 
       </tr>
