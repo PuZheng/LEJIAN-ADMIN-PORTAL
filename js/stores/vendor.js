@@ -7,13 +7,19 @@ var VendorStore = function () {
     riot.observable(this);
     this.on('vendor.list.fetch', function (query) {
         this.fetchList(query);
+    }).on('vendor.create', function (data) {
+        this.create(data);
+    }).on('vendor.fetch', function (id) {
+        this.fetch(id);
+    }).on('vendor.update', function (orig, patch) {
+        this.update(orig, patch);
     });
 };
 
 VendorStore.prototype.fetchList = function (query) {
     query = query || {};
     var d = $.Deferred();
-    bus.trigger('vendor.list.fetching');
+    bus.trigger('vendor.list.fetching', query);
     var setupItems = function (items) {
         if (query.sortBy)  {
             var sortBy = query.sortBy.split('.');
@@ -60,6 +66,52 @@ VendorStore.prototype.fetchList = function (query) {
             }]);
         }.bind(this)).fail(fail);
     }
+    return d;
+};
+
+VendorStore.prototype.create = function (data) {
+    var d = $.Deferred();
+    bus.trigger('vendor.creating', data);
+    request.post('/vendor/object', data).done(function (res) {
+        bus.trigger('vendor.created', res.body);
+        bus.trigger('vendor.create.done');
+        d.resolve(res.body);
+    }).fail(function (err, res) {
+        bus.trigger('vendor.create.failed', data, err);
+        bus.trigger('vendor.create.done');
+        d.reject(err);
+    });
+    return d;
+};
+
+VendorStore.prototype.fetch = function (id) {
+    var d = $.Deferred();
+    bus.trigger('vendor.fetching', id);
+    request('/vendor/object/' + id).done(function (res) {
+        bus.trigger('vendor.fetched', res.body);
+        bus.trigger('vendor.fetch.done');
+    }).fail(function (err, res) {
+        bus.trigger('vendor.fetch.failed', err, id);
+        bus.trigger('vendor.fetch.done');
+    });
+    return d;
+};
+
+VendorStore.prototype.update = function (orig, patch) {
+    var d = $.Deferred();
+    bus.trigger('vendor.updating', orig, patch);
+    request.put('/vendor/object/' + orig.id, patch).done(function (res) {
+        bus.trigger('vendor.updated', res.body, orig, patch);
+        bus.trigger('vendor.update.done');
+        this.items && this.items.forEach(function (item) {
+            if (item.id === res.body.id) {
+                _.assign(item, res.body);
+            }
+        });
+    }).fail(function (err, res) {
+        bus.trigger('vendor.update.failed', err, orig, patch);
+        bus.trigger('vendor.update.done');
+    });
     return d;
 };
 
