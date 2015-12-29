@@ -4,12 +4,7 @@ var toastr = require('toastr/toastr.min.js');
 require('toastr/toastr.min.css');
 var swal = require('sweetalert/sweetalert.min.js');
 require('tags/loader.tag');
-
-<field class="inline field { opts.required && 'required' }">
-  <label for="">{ opts.field }</label>
-  <input type={ opts.type || 'text' } placeholder="输入{ opts.field }..." value={ parent.item[opts.prop] } disabled={ !parent.opts.editable } name={ opts.prop }>
-
-</field>
+require('tags/form-field.tag');
 
 <vendor-form>
   <form class="ui form" action="">
