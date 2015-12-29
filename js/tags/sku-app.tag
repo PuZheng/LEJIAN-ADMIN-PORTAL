@@ -1,18 +1,18 @@
 var riot = require('riot');
 var bus = require('riot-bus');
-require('tags/vendor-form.tag');
+require('tags/sku-form.tag');
 
-<vendor-app>
+<sku-app>
   <div class="ui grid object-app">
     <div class="row">
       <div class="column">
         <div class="ui top attached blue message">
           <div class="ui header">
             <raw if={ opts.ctx.params.id }>
-              厂商详情-<i>{ item.name }</i>
+              SKU详情-<i>{ item.spu.name }</i>
             </raw>
             <raw if={ !opts.ctx.params.id }>
-              创建厂商
+              创建SKU
             </raw>
           </div>
           <i class="icon asterisk" if={ opts.ctx.params.id && editable }></i>
@@ -26,7 +26,7 @@ require('tags/vendor-form.tag');
           </section>
         </div>
         <div class="ui bottom attached segment">
-          <vendor-form editable={ editable } ctx={P opts.ctx}></vendor-form>
+          <sku-form editable={ editable } ctx={ opts.ctx}></vendor-form>
         </div>
       </div>
     </div>
@@ -35,12 +35,12 @@ require('tags/vendor-form.tag');
     var self = this;
     self.mixin(bus.Mixin);
 
-    self.on('vendor.fetched', function (item) {
+    self.on('update', function () {
+      self.editable = !opts.ctx.params.id || self.opts.ctx.query.editable === '1';
+    }).on('sku.fetched', function (item) {
       self.item = item;
       self.update();
-    }).on('update', function () {
-      self.editable = !self.opts.ctx.params.id || self.opts.ctx.query.editable;
-    })
-
+    });
   </script>
-</vendor-app>
+
+</sku-app>

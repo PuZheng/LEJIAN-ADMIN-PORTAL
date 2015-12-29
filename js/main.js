@@ -11,7 +11,6 @@ var bus = require('riot-bus');
 var camelCase = require('camelcase');
 var config = require('config');
 require('semantic-ui/semantic.js');
-
 require('tags/login-app.tag');
 require('tags/spu-type-list-app.tag');
 require('tags/spu-type-app.tag');
@@ -22,6 +21,7 @@ require('tags/vendor-list-app.tag');
 require('tags/retailer-list-app.tag');
 require('tags/sku-list-app.tag');
 require('tags/vendor-app.tag');
+require('tags/sku-app.tag');
 
 var swal = require('sweetalert/sweetalert.min.js');
 require('sweetalert/sweetalert.css');
@@ -164,6 +164,17 @@ var vendor = function (ctx, next) {
     ctx.params.id && bus.trigger('vendor.fetch', ctx.params.id);
 };
 
+var sku = function (ctx, next) {
+    bus.register(skuStore);
+    bus.register(spuStore);
+    workspace.app = riot.mount('#main', 'sku-app', {
+        ctx: ctx
+    })[0];
+    workspace.appName = 'sku';
+    ctx.params.id && bus.trigger('sku.fetch', ctx.params.id);
+    bus.trigger('spu.list.fetch');
+};
+
 page(function (ctx, next) {
     var qs = ctx.querystring;
     ctx.query = {};
@@ -177,7 +188,6 @@ page(function (ctx, next) {
     }
     next();
 });
-
 page('/auth/login', resetStores, navBar, login);
 page('/spu-type-list', function (ctx, next) {
     if (workspace.appName === 'spu-type-list') {
@@ -250,6 +260,14 @@ page('/vendor/:id?', function (ctx, next) {
         next();
     }
 }, resetStores, loginRequired, navBar, vendor);
+page('/sku/:id?', function (ctx, next) {
+    if (workspace.appName === 'sku') {
+        workspace.app.opts = { ctx: ctx };
+        workspace.app.update();
+    } else {
+        next();
+    }
+}, resetStores, loginRequired, navBar, sku);
 
 page('/', '/spu-list');
 

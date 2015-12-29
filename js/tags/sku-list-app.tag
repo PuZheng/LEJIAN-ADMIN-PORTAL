@@ -18,7 +18,7 @@ require('css/sku-list.css');
       <div class="ui header">
         SKU列表
       </div>
-      <a class="ui tiny icon circular green button" href="/spu" data-content="创建SKU">
+      <a class="ui tiny icon circular green button" href="/sku" data-content="创建SKU">
         <i class="icon plus"></i>
       </a>
       <a riot-tag="batch-delete-btn" ids={ tags['sku-table'].selected } data-content="删除SKU" event="sku.delete" success-event="sku.deleted" ctx={ opts.ctx }></a>

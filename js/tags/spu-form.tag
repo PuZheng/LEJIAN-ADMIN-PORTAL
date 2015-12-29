@@ -103,9 +103,7 @@ var swal = require('sweetalert/sweetalert.min.js');
         return self.formData();
       } else {
         var formData = self.formData();
-        var diff = _(formData).pairs().filter(function (pair) {
-          var k = pair[0];
-          var v = pair[1];
+        var diff = _(formData).pairs().filter(function ([k, v]) {
           if (k !== 'picPaths') {
             return self.item[k] != v;
           } else {
