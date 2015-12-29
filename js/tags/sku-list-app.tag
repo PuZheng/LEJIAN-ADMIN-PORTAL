@@ -98,7 +98,7 @@ require('css/sku-list.css');
         rightCurrent: 3,
         currentPage: self.opts.ctx.query.page,
         perPage: self.opts.ctx.query.perPage,
-        totalCount: data.totalCnt,
+        totalCount: data.totalCount,
       }).toJSON();
       self.update();
     }).on('spu.list.fetched', function (data) {

@@ -65,7 +65,7 @@ require('perfect-scrollbar/dist/js/min/perfect-scrollbar.jquery.min.js');
       e.preventDefault();
       var spuId = $(e.currentTarget).data('spu');
       if (spuId) {
-        opts.ctx.query.spu = spuId;
+        opts.ctx.query.spuId = spuId;
       } else {
         delete opts.ctx.query.spu;
       }

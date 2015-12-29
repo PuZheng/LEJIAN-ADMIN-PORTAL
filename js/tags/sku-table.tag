@@ -38,9 +38,9 @@ require('perfect-scrollbar/dist/js/min/perfect-scrollbar.jquery.min.js');
         <td>{ spu.name }</td>
         <td>{ token }</td>
         <td>{ verifyCount }</td>
-        <td>{ moment(lastVerifyTime).format('YY-MM-DD HH:MM') }</td>
-        <td>{ moment(manufactureDate).format('YY-MM-DD') }</td>
-        <td class={ (moment(expireDate, 'YYYY-MM-DD') < new Date()) && 'ui tiny header red' }>{ moment(expireDate).format('YY-MM-DD') }</td>
+        <td>{ moment(lastVerifiedAt).format('YY-MM-DD HH:MM') }</td>
+        <td>{ moment(productionDate).format('YYYY-MM-DD') }</td>
+        <td class={ (moment(expireDate) < new Date()) && 'ui tiny header red' }>{ moment(expireDate).format('YY-MM-DD') }</td>
       </tr>
     </tbody>
   </table>

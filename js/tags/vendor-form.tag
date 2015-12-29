@@ -108,7 +108,7 @@ require('tags/loader.tag');
       --self.loading;
       self.update();
     }).on('vendor.updated', function (item, orig, patch) {
-      self.item = item;
+      self.item = item; // must set the item
       toastr.success('更新成功！', '', {
         positionClass: 'toast-bottom-center',
         timeOut: 1000,

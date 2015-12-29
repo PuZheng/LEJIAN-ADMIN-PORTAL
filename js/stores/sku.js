@@ -16,7 +16,7 @@ SKUStore.prototype.fetchList = function (query) {
     var d = $.Deferred();
     bus.trigger('sku.list.fetching', query);
 
-    request('/sku/list.json?' + buildQS(query)).done(function (res) {
+    request('/sku/list?' + buildQS(query)).done(function (res) {
         bus.trigger('sku.list.fetched', res.body);
         bus.trigger('sku.list.fetch.done');
         d.resolve(res.body);
@@ -29,7 +29,7 @@ SKUStore.prototype.fetchList = function (query) {
 SKUStore.prototype.delete = function (ids) {
     var d = $.Deferred();
     bus.trigger('sku.deleting', ids);
-    request.delete('/sku/list.json?ids=' + ids.join(',')).done(function (res) {
+    request.delete('/sku/list?ids=' + ids.join(',')).done(function (res) {
         bus.trigger('sku.deleted', ids, res.body);
         bus.trigger('sku.delete.done');
         d.resolve(ids, res.body);
