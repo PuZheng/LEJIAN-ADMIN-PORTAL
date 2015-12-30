@@ -34,7 +34,9 @@ require('perfect-scrollbar/dist/js/min/perfect-scrollbar.jquery.min.js');
             <label for=""></label>
           </div>
         </td>
-        <td>{ id }</td>
+        <td>
+          <a href="/sku/{ id }">{ id }</a>
+        </td>
         <td>{ spu.name }</td>
         <td>{ token }</td>
         <td>{ verifyCount }</td>
