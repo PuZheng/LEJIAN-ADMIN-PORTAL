@@ -22,6 +22,7 @@ require('tags/retailer-list-app.tag');
 require('tags/sku-list-app.tag');
 require('tags/vendor-app.tag');
 require('tags/sku-app.tag');
+require('tags/upload-sku-app.tag');
 
 var swal = require('sweetalert/sweetalert.min.js');
 require('sweetalert/sweetalert.css');
@@ -126,6 +127,15 @@ var skuList = function (ctx, next) {
     skuStore.fetchList(ctx.query).done(function () {
         spuStore.fetchList();
     });
+};
+
+var uploadSKU = function (ctx, next) {
+    bus.register(skuStore);
+    bus.register(vendorStore);
+    bus.register(spuStore);
+    workspace.app = riot.mount('#main', 'upload-sku-app', { ctx: ctx })[0];
+    workspace.appName = 'upload-sku';
+    vendorStore.fetchList();
 };
 
 var navBar = function (ctx, next) {
@@ -268,7 +278,7 @@ page('/sku/:id?', function (ctx, next) {
         next();
     }
 }, resetStores, loginRequired, navBar, sku);
-
+page('/upload-sku', resetStores, loginRequired, navBar, uploadSKU);
 page('/', '/spu-list');
 
 page();
