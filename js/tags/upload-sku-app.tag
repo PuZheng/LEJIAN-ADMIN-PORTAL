@@ -1,6 +1,8 @@
 var riot = require('riot');
 var bus = require('riot-bus');
 require('tags/loader.tag');
+var Papa = require('papaparse');
+var swal = require('sweetalert/sweetalert.min.js');
 
 <upload-sku-app>
   <div class="ui page grid">
@@ -28,9 +30,27 @@ require('tags/loader.tag');
             选择文件
             <input type="file">
           </button>
-          <button class="ui primary button" disabled>确认导入</button>
+          <button class="ui import primary button" disabled onclick={ importHandler }>确认导入</button>
         </div>
         <div class="ui bottom attached segment">
+          <table class="ui striped compact table">
+            <thead>
+              <tr>
+                <th>token</th>
+                <th>校验码</th>
+                <th>生产日期</th>
+                <th>有效截止日期</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr each={ records }>
+                <td>{ token }</td>
+                <td>{ checksum }</td>
+                <td>{ productionDate }</td>
+                <td>{ expireDate }</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -79,10 +99,24 @@ require('tags/loader.tag');
     var self = this;
     self.mixin(bus.Mixin);
     self.loading = 0;
-    self.on('vendor.list.fetching spu.list.fetching', function () {
+    self.importHandler = function (e) {
+      swal({
+        type: 'warning',
+        title: '',
+        text: '您确认要导入SPU <' + $(self.root).find('.spu.dropdown').dropdown('get text') + '> 的SKU数据?',
+        showCancelButton: true,
+        closeOnConfirm: false,
+      }, function (confirmed) {
+        if (confirmed) {
+          bus.trigger('sku.create', self.records);
+        }
+      });
+    };
+
+    self.on('vendor.list.fetching spu.list.fetching sku.creating', function () {
       ++self.loading;
       self.update();
-    }).on('vendor.list.fetch.done spu.list.fetch.done', function () {
+    }).on('vendor.list.fetch.done spu.list.fetch.done sku.create.done', function () {
       --self.loading;
       self.update();
     });
@@ -91,7 +125,23 @@ require('tags/loader.tag');
       self.$modal = self.$modal || $(self.root).find('.ui.modal');
       self.$modal.modal('show');
       $(self.root).find('[type=file]').change(function (e) {
-
+        var fr = new FileReader();
+        fr.onload = function (e) {
+          var result = Papa.parse(e.target.result);
+          if (result.data.length) {
+            $(self.root).find('.import.button').removeAttr('disabled');
+            self.records = result.data.map(function (row) {
+              return {
+                token: row[0],
+                checksum: row[1],
+                productionDate: row[2],
+                expireDate: row[3]
+              };
+            });
+            self.update();
+          }
+        };
+        fr.readAsText(e.currentTarget.files[0]);
       });
     }).on('vendor.list.fetched', function (data) {
       self.vendors = data.data;
@@ -108,9 +158,15 @@ require('tags/loader.tag');
       self.update();
       $(self.root).find('.ui.dropdown.spu').dropdown({
         onChange: function () {
-            var $button = $(self.root).find('.file.button');
+            var $fileButton = $(self.root).find('.file.button');
+            var $importButton = $(self.root).find('.import.button');
             return function (value) {
-              value? $button.removeAttr('disabled'): $button.attr('disabled', 'disabled');
+              if (value) {
+                $fileButton.removeAttr('disabled');
+              } else {
+                $fileButton.attr('disabled', 'disabled');
+                $importButton.attr('disabled', 'disabled');
+              }
             }
         }()
       }).dropdown('clear');
