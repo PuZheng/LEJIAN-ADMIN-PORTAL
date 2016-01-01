@@ -59,6 +59,7 @@
     "moment": "^2.10.6",
     "nprogress": "^0.2.0",
     "page": "^1.6.4",
+    "papaparse": "^4.1.2",
     "perfect-scrollbar": "^0.6.8",
     "require-dot-file": "^0.4.0",
     "riot": "^2.3.11",

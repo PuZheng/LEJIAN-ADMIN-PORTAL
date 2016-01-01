@@ -5,7 +5,7 @@
 
     .bottom.attached.segment {
         min-height: 32rem;
-        form {
+        form, .ui.form {
             .file.button {
                 position: relative;
                 input[type=file] {

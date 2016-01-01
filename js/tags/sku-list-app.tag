@@ -1,7 +1,6 @@
 var riot = require('riot');
 var bus = require('riot-bus');
 var Pagination = require('pagination');
-var uploadHelpHtml = require('raw!../../sku-upload-help.html');
 
 require('tags/sku-table.tag')
 require('tags/paginator.tag');
@@ -22,7 +21,7 @@ require('css/sku-list.css');
         <i class="icon plus"></i>
       </a>
       <a riot-tag="batch-delete-btn" ids={ tags['sku-table'].selected } data-content="删除SKU" event="sku.delete" success-event="sku.deleted" ctx={ opts.ctx }></a>
-      <a class="ui tiny icon circular button" href="#" data-html={ uploadHelpHtml }>
+      <a class="ui tiny icon circular button" href="/upload-sku">
         <i class="icon upload"></i>
       </a>
       <div class="ui icon help"></div>
@@ -81,9 +80,9 @@ require('css/sku-list.css');
   <script>
     var self = this;
     self.mixin(bus.Mixin);
-    self.uploadHelpHtml = uploadHelpHtml;
+
     self.on('mount', function (data) {
-      $(self.root).find('[data-content],[data-html]').popup();
+      $(self.root).find('[data-content]').popup();
     }).on('sku.deleting', function () {
       self.loading = true;
       self.update();
