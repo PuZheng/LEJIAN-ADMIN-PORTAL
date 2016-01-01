@@ -4,6 +4,7 @@ require('tags/loader.tag');
 var Papa = require('papaparse');
 var swal = require('sweetalert/sweetalert.min.js');
 
+
 <upload-sku-app>
   <div class="ui page grid">
     <div class="column">
@@ -36,6 +37,7 @@ var swal = require('sweetalert/sweetalert.min.js');
           <table class="ui striped compact table">
             <thead>
               <tr>
+                <th>行号</th>
                 <th>token</th>
                 <th>校验码</th>
                 <th>生产日期</th>
@@ -43,11 +45,12 @@ var swal = require('sweetalert/sweetalert.min.js');
               </tr>
             </thead>
             <tbody>
-              <tr each={ records }>
-                <td>{ token }</td>
-                <td>{ checksum }</td>
-                <td>{ productionDate }</td>
-                <td>{ expireDate }</td>
+              <tr each={ row, i in records }>
+                <td>{ i + 1 }</td>
+                <td>{ row.token }</td>
+                <td>{ row.checksum }</td>
+                <td>{ row.productionDate }</td>
+                <td>{ row.expireDate }</td>
               </tr>
             </tbody>
           </table>
@@ -108,7 +111,11 @@ var swal = require('sweetalert/sweetalert.min.js');
         closeOnConfirm: false,
       }, function (confirmed) {
         if (confirmed) {
-          bus.trigger('sku.create', self.records);
+          bus.trigger('sku.create', self.records.map(function (row) {
+            return _.assign({
+              spuId: self.$spuDropdown.dropdown('get value'),
+            }, row);
+          }));
         }
       });
     };
@@ -124,10 +131,13 @@ var swal = require('sweetalert/sweetalert.min.js');
     self.on('mount', function () {
       self.$modal = self.$modal || $(self.root).find('.ui.modal');
       self.$modal.modal('show');
-      $(self.root).find('[type=file]').change(function (e) {
+      self.$fileInput = $(self.root).find('[type=file]').change(function (e) {
         var fr = new FileReader();
         fr.onload = function (e) {
-          var result = Papa.parse(e.target.result);
+          self.$fileInput.val('');
+          var result = Papa.parse(e.target.result, {
+            skipEmptyLines: true,
+          });
           if (result.data.length) {
             $(self.root).find('.import.button').removeAttr('disabled');
             self.records = result.data.map(function (row) {
@@ -146,7 +156,7 @@ var swal = require('sweetalert/sweetalert.min.js');
     }).on('vendor.list.fetched', function (data) {
       self.vendors = data.data;
       self.update();
-      $(self.root).find('.ui.dropdown.vendor').dropdown({
+      self.$vendorDropdown = $(self.root).find('.ui.dropdown.vendor').dropdown({
         onChange: function (value) {
           bus.trigger('spu.list.fetch', {
             vendorId: value,
@@ -156,7 +166,7 @@ var swal = require('sweetalert/sweetalert.min.js');
     }).on('spu.list.fetched', function (data) {
       self.spus = data.data;
       self.update();
-      $(self.root).find('.ui.dropdown.spu').dropdown({
+      self.$spuDropdown = $(self.root).find('.ui.dropdown.spu').dropdown({
         onChange: function () {
             var $fileButton = $(self.root).find('.file.button');
             var $importButton = $(self.root).find('.import.button');
@@ -170,6 +180,44 @@ var swal = require('sweetalert/sweetalert.min.js');
             }
         }()
       }).dropdown('clear');
+    }).on('sku.created', function (data) {
+      swal({
+        type: 'success',
+        title: '',
+        text: '上传成功!',
+      });
+    }).on('sku.create.failed', function (err) {
+      var row = err.response.body.row;
+      var rowNO = err.response.body.rowNO;
+      swal({
+        type: 'error',
+        title: '',
+        text: _.template(hintTemplate)({ rowNO: rowNO + 1, row: row }),
+        html: true,
+      })
     });
+    var hintTemplate = `
+    <p>该行数据出现错误(可能是重复的token或者格式错误):</p>
+    <table class="ui compact table">
+      <thead>
+        <tr>
+          <th>行号</th>
+          <th>token</th>
+          <th>校验码</th>
+          <th>生产日期</th>
+          <th>有效截止日期</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><%= rowNO %></td>
+          <td><%= row.token %></td>
+          <td><%= row.checksum %></td>
+          <td><%= row.productionDate %></td>
+          <td><%= row.expireDate %></td>
+          <td></td>
+        </tr>
+      </tbody>
+    `;
   </script>
 </upload-sku-app>

@@ -50,7 +50,10 @@ SKUStore.prototype.delete = function (ids) {
 SKUStore.prototype.create = function (data) {
     var d = $.Deferred();
     bus.trigger('sku.creating', data);
-    request.post('/sku/object', data).done(function (res) {
+    if (_.isArray(data)) {
+
+    }
+    request.post.apply(request, _.isArray(data)?  ['sku/list', { data: data }]: ['/sku/object', data]).done(function (res) {
         bus.trigger('sku.created', res.body);
         bus.trigger('sku.create.done');
         d.resolve(res.body);
