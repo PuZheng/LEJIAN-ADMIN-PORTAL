@@ -20,6 +20,7 @@ require('tags/loader.tag');
         <th riot-tag="sortable-th" label="零售价" name="msrp" ctx={ opts.ctx }>
         </th>
         <th>厂商</th>
+        <th>零售商数量</th>
         <th>分类</th>
         <th riot-tag="sortable-th" label="评分" name="rating" ctx={ opts.ctx }></th>
         <th riot-tag="sortable-th" label="创建时间" name="created_at" ctx={ opts.ctx }></th>
@@ -52,6 +53,9 @@ require('tags/loader.tag');
         </td>
         <td>
           <a href="/vendor/{ vendorId }">{ vendor.name }</a>
+        </td>
+        <td>
+          <a href="/retailer/list?spu_id={ id }">{ retailerCnt }</a>
         </td>
         <td>
           <a href="/spu-type/{ spuTypeId }">{ spuType.name }</a>

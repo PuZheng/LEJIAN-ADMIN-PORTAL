@@ -8,6 +8,7 @@ require('toastr/toastr.min.css');
 require('tags/centered-image.tag');
 require('tags/gallery.tag');
 var swal = require('sweetalert/sweetalert.min.js');
+var filters = require('riot-filters');
 
 <spu-form>
   <form class="ui form" action="">
@@ -64,6 +65,17 @@ var swal = require('sweetalert/sweetalert.min.js');
       </div>
     </div>
     <div class="inline field">
+      <label for="">零售商</label>
+      <div class="{ !opts.editable && 'disabled' } retailer ui multiple search selection dropdown">
+        <input type="hidden" name="retailerIds" value={ _filters_.attr(item.retailerList, 'id') }>
+        <i class="dropdown icon"></i>
+        <div class="default text">选择零售商</div>
+        <div class="menu">
+          <div class="item" data-value={ id } each={ retailers }>{ name }</div>
+        </div>
+      </div>
+    </div>
+    <div class="inline field">
       <label for="">图片</label>
       <div riot-tag="gallery" editable={ opts.editable }></div>
       <input type="hidden" name="picPaths">
@@ -84,6 +96,8 @@ var swal = require('sweetalert/sweetalert.min.js');
   <script>
     var self = this;
     self.mixin(bus.Mixin);
+    self.mixin(filters.Mixin);
+
     self.loading = 0;
     self.formData = function () {
       var ret = _(self.$form.serializeArray()).map(function (o) {
@@ -91,6 +105,7 @@ var swal = require('sweetalert/sweetalert.min.js');
       }).object().value();
       ret.enabled = ret.enabled === 'on';
       ret.picPaths = ret.picPaths && ret.picPaths.split(',');
+      ret.retailerIds = ret.retailerIds? ret.retailerIds.split(','): [];
       if (ret.msrp === '') {
         delete ret.msrp;
       } else {
@@ -104,18 +119,33 @@ var swal = require('sweetalert/sweetalert.min.js');
       } else {
         var formData = self.formData();
         var diff = _(formData).pairs().filter(function ([k, v]) {
-          if (k !== 'picPaths') {
-            return self.item[k] != v;
-          } else {
-            return self.item.picPaths.join(',') !== v.join(',');
+          var ret;
+          switch (k) {
+            case 'picPaths': {
+              ret = self.item.picPaths.join(',') != v.join(',');
+              break;
+            }
+            case 'retailerIds': {
+              ret = self.item.retailerList.map(function (retailer) {
+                return retailer.id;
+              }).join(',') != (v && v.join(','));
+              break;
+            }
+            default:
+              ret = self.item[k] != v;
           }
+          return ret;
         }).object().value();
         return diff;
       }
     };
 
-    _.extend(self, {
-      loading: 0,
+    self.on('spuType.list.fetch.done vendor.list.fetch.done spu.create.done spu.fetch.done spu.update.done retailer.list.fetch.done', function () {
+      --self.loading;
+      self.update();
+    }).on('spuType.list.fetching vendor.list.fetching spu.creating spu.fetching spu.updating retailer.list.fetching', function () {
+      ++self.loading;
+      self.update();
     });
     self.on('mount', function () {
       $(self.root).find('.ui.checkbox').checkbox();
@@ -198,9 +228,6 @@ var swal = require('sweetalert/sweetalert.min.js');
         $(self.picPaths).val((picPaths && picPaths + ',') + path);
         console.log('add a new image ' + path);
       });
-    }).on('spuType.list.fetching vendor.list.fetching spu.creating spu.fetching spu.updating', function () {
-      ++self.loading;
-      self.update();
     }).on('spuType.list.fetched', function (data) {
       self.spuTypes = data.data;
       self.update();
@@ -209,9 +236,6 @@ var swal = require('sweetalert/sweetalert.min.js');
       self.vendors = data.data;
       self.update();
       $(self.root).find('.vendor.dropdown').dropdown();
-    }).on('spuType.list.fetch.done vendor.list.fetch.done spu.create.done spu.fetch.done spu.update.done', function () {
-      --self.loading;
-      self.update();
     }).on('spu.created', function (item) {
       swal({
         type: 'success',
@@ -243,6 +267,10 @@ var swal = require('sweetalert/sweetalert.min.js');
       });
       _.assign(self.item, oldItem);
       self.update();
+    }).on('retailer.list.fetched', function (data) {
+      self.retailers = data.data;
+      self.update();
+      $(self.root).find('.retailer.ui.dropdown').dropdown();
     }).on('error', function (err) {
       console.error(err);
     });

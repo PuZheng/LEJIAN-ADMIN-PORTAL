@@ -160,11 +160,21 @@ var spu = function (ctx, next) {
     bus.register(spuTypeStore);
     bus.register(vendorStore);
     bus.register(assetStore);
+    bus.register(retailerStore);
     workspace.app = riot.mount('#main', 'spu-app', { ctx: ctx })[0];
     workspace.appName = 'spu';
-    ctx.params.id && bus.trigger('spu.fetch', ctx.params.id);
-    bus.trigger('spuType.list.fetch');
-    bus.trigger('vendor.list.fetch');
+    if (ctx.params.id) {
+        // must ensure spu is fetched first
+        spuStore.fetch(ctx.params.id).then(function () {
+            ['spuType', 'vendor', 'retailer'].forEach(function (store) {
+                bus.trigger(store + '.list.fetch');
+            });
+        });
+    } else {
+        ['spuType', 'vendor', 'retailer'].forEach(function (store) {
+            bus.trigger(store + '.list.fetch');
+        });
+    }
 };
 
 var vendor = function (ctx, next) {
