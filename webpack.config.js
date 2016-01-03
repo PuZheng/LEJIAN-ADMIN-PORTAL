@@ -29,6 +29,7 @@ module.exports = {
             'config$': resolvePath('./js/config.js'),
             'stores': resolvePath('./js/stores'),
             'riot-bus$': resolvePath('./js/riot-bus.js'),
+            'riot-filters$': resolvePath('./js/riot-filters.js'),
             'tags': resolvePath('./js/tags'),
             'principal$': resolvePath('./js/principal.js'),
             'request$': resolvePath('./js/request.js'),

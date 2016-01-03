@@ -17,7 +17,7 @@ RetailerStore.prototype.fetchList = function (query) {
 
     bus.trigger('retailer.list.fetching');
 
-    request('/retailer/list.json?' + buildQS(query)).done(function (res) {
+    request('/retailer/list?' + buildQS(query)).done(function (res) {
         bus.trigger('retailer.list.fetched', res.body);
         bus.trigger('retailer.list.fetch.done');
         d.resolve(res.body);
