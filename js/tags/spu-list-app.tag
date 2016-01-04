@@ -60,8 +60,8 @@ require('tags/spu-table.tag');
         rightEdge: 3,
         leftCurrent: 3,
         rightCurrent: 3,
-        currentPage: self.opts.ctx.query.page || 1,
-        perPage: self.opts.ctx.query.perPage || 12,
+        currentPage: self.opts.ctx.query.page,
+        perPage: self.opts.ctx.query.perPage,
         totalCount: data.totalCnt,
       }).toJSON();
       self.update();
