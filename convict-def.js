@@ -19,6 +19,12 @@ var conf = convict({
         format: "url",
         default: "http://127.0.0.1:5000/assets",
         env: "UPLOAD_TO"
+    },
+    ak: {
+        doc: 'baidu map ak',
+        format: String,
+        default: "SwpHSZo7lxB794VNXA9U2d5q",
+        env: 'AK',
     }
 });
 
