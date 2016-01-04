@@ -260,6 +260,7 @@ page('/spu-type/:id?', function (ctx, next) {
     if (workspace.appName === 'spu-type') {
         workspace.app.opts = { ctx: ctx };
         workspace.app.update();
+        ctx.params.id && bus.trigger('spuType.fetch', ctx.params.id);
     } else {
         next();
     }
@@ -268,6 +269,7 @@ page('/spu/:id?', function (ctx, next) {
     if (workspace.appName === 'spu') {
         workspace.app.opts = { ctx: ctx };
         workspace.app.update();
+        ctx.params.id && bus.trigger('spu.fetch', ctx.params.id);
     } else {
         next();
     }
@@ -276,6 +278,7 @@ page('/vendor/:id?', function (ctx, next) {
     if (workspace.appName === 'spu') {
         workspace.app.opts = { ctx: ctx };
         workspace.app.update();
+        ctx.params.id && bus.trigger('vendor.fetch', ctx.params.id);
     } else {
         next();
     }
@@ -284,6 +287,7 @@ page('/sku/:id?', function (ctx, next) {
     if (workspace.appName === 'sku') {
         workspace.app.opts = { ctx: ctx };
         workspace.app.update();
+        ctx.params.id && bus.trigger('sku.fetch', ctx.params.id);
     } else {
         next();
     }
