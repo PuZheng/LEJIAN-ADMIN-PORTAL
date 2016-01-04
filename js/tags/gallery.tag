@@ -6,7 +6,7 @@ require('toastr/toastr.min.css');
 <gallery>
   <div class="ui segment">
     <div class="ui small images">
-      <div class="ui circular huge green icon file button { !opts.editable && 'disabled' }">
+      <div class="ui circular huge green icon file button { !opts.editable && 'disabled' }" if={ images.length < (opts.max || Number.MAX_SAFE_INTEGER) }>
         <i class="icon upload"></i>
         <input type="file">
       </div>
