@@ -10,7 +10,6 @@ require('perfect-scrollbar/dist/js/min/perfect-scrollbar.jquery.min.js');
   <loader if={ loading }></loader>
   <table class="ui sortable compact striped table">
     <thead class="full-width">
-
       <th>
         <div class="select-all ui checkbox">
           <input type="checkbox">
@@ -24,7 +23,6 @@ require('perfect-scrollbar/dist/js/min/perfect-scrollbar.jquery.min.js');
       <th riot-tag="sortable-th" label="最后验证时间" name="last_verify_time" ctx={ opts.ctx }></th>
       <th riot-tag="sortable-th" label="生产日期" name="manufacture_date" ctx={ opts.ctx }></th>
       <th riot-tag="sortable-th" label="质保期" name="expire_date" ctx={ opts.ctx }></th>
-
     </thead>
     <tbody>
       <tr each={ items }>
