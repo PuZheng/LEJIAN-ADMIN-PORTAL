@@ -41,8 +41,8 @@ var config = require('config');
         <td>{ moment(createTime).format('YY-MM-DD HH时') }</td>
         <td>{ spuCnt }</td>
         <td>
-          <a class="ui lnglat image" href="http://api.map.baidu.com/staticimage/v2?ak={ config.ak }&mcode=666666&center={ lng },{ lat }&width=480&height=480&zoom=12&markers={lng},{lat}&markerStyles=l,0">
-            <img src="http://api.map.baidu.com/staticimage/v2?ak={ config.ak }&mcode=666666&center={ lng },{ lat }&width=480&height=480&zoom=12&markers={lng},{lat}&markerStyles=l,0" alt="">
+          <a class="ui lnglat image" href={ staticMapURL }>
+            <img src={ staticMapURL } alt="">
           </a>
         </td>
       </tr>
@@ -62,10 +62,14 @@ var config = require('config');
     var self = this;
     self.mixin(bus.Mixin);
     self.moment = moment;
-    self.config = config;
 
     self.on('retailer.list.fetched', function (data) {
-      self.items = data.data;
+      self.items = data.data.map(function (item) {
+        return _.assign(item, {
+          staticMapURL: `http://restapi.amap.com/v3/staticmap?location=${ item.lng },${ item.lat }&zoom=10&size=640*640&markers=small,,A:${ item.lng },${ item.lat }&key=${ config.mapKey.web }`
+        });
+      });
+      console.log(self.items);
       self.update();
     }).on('updated', function () {
       $(self.root).find('tbody a.image').magnificPopup({type:'image'});

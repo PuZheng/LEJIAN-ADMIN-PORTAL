@@ -31,7 +31,7 @@ Assets.prototype.upload = function (file, filename, ...piggypack) {
         cache: false,
         dataType: 'json',
         headers: {
-            Authorization: 'JWT ' + auth.user().token,
+            Authorization: 'Bearer ' + auth.user().token,
         },
         xhr: function() {  // Custom XMLHttpRequest
             var myXhr = $.ajaxSettings.xhr();

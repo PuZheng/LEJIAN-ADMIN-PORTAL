@@ -9,6 +9,10 @@ var RetailerStore = function () {
         this.fetchList(query);
     }).on('retailer.fetch', function (id) {
         this.fetch(id);
+    }).on('retailer.create', function (data) {
+        this.create(data);
+    }).on('retailer.update', function (item, patch) {
+        this.update(item, patch);
     });
     return this;
 };
@@ -48,5 +52,36 @@ RetailerStore.prototype.fetch = function (id) {
     return d;
 };
 
+RetailerStore.prototype.create = function (data) {
+    var d = $.Deferred();
+    bus.trigger('retailer.creating', data);
+
+    request.post('/retailer/object/', data).done(function (res) {
+        bus.trigger('retailer.created', res.body);
+        d.resolve(res.body);
+    }).fail(function (err, res) {
+        bus.trigger('retailer.create.failed', err);
+        d.reject(err);
+    }).always(function () {
+        bus.trigger('retailer.create.done');
+    });
+    return d;
+};
+
+RetailerStore.prototype.update = function (item, patch) {
+    var d = $.Deferred();
+    bus.trigger('retailer.updating', item, patch);
+
+    request.put('/retailer/object/' + item.id, patch).done(function (res) {
+        bus.trigger('retailer.updated', res.body, item, patch);
+        d.resolve(res.body);
+    }).fail(function (err, res) {
+        bus.trigger('retailer.update.failed', err, item, patch);
+        d.reject(err);
+    }).always(function () {
+        bus.trigger('retailer.update.done');
+    });
+    return d;
+};
 
 module.exports = new RetailerStore();

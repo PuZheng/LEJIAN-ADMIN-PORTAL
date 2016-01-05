@@ -35,12 +35,19 @@ require('tags/retailer-form.tag');
   <script>
     var self = this;
     self.mixin(bus.Mixin);
+    self.clear = function () {
+      self.tags['retailer-form'].clear();
+    };
 
-    self.on('update', function () {
+    self.on('mount', function () {
+      $(self.root).find('[data-content]').popup();
+    }).on('update', function () {
       self.editable = !self.opts.ctx.params.id || self.opts.ctx.query.editable;
     }).on('retailer.fetched', function (item) {
       self.item = item;
       self.update();
+    }).on('retailer.created', function (item) {
+      self.item = item;
     });
   </script>
 </retailer-app>
