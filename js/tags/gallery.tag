@@ -6,7 +6,7 @@ require('toastr/toastr.min.css');
 <gallery>
   <div class="ui segment">
     <div class="ui small images">
-      <div class="ui circular huge green icon file button { !opts.editable && 'disabled' }">
+      <div class="ui circular huge green icon file button { !opts.editable && 'disabled' }" if={ images.length < (opts.max || Number.MAX_SAFE_INTEGER) }>
         <i class="icon upload"></i>
         <input type="file">
       </div>
@@ -32,9 +32,16 @@ require('toastr/toastr.min.css');
       }
     }();
     self.addImages = function (images) {
-        self.images = self.images.concat(images);
+      self.images = _.unique(self.images.concat(images), function (image) {
+        return image.path;
+      });
         self.update();
     };
+
+    self.clear = function () {
+      self.images = [];
+      self.update();
+    }
 
     self.on('mount', function () {
       self.$progress = $(self.root).find('.progress');
@@ -62,10 +69,6 @@ require('toastr/toastr.min.css');
         self.trigger('remove', target);
         self.update();
       });
-      if (!_.isEmpty(opts.images)) {
-        self.images = opts.images;
-        self.update();
-      }
     }).on('asset.uploaded', function (paths, filename, uuid) {
       _(self.images).filter(function (image) {
         return image.uuid === uuid;

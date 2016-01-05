@@ -23,6 +23,7 @@ require('tags/sku-list-app.tag');
 require('tags/vendor-app.tag');
 require('tags/sku-app.tag');
 require('tags/upload-sku-app.tag');
+require('tags/retailer-app.tag');
 
 var swal = require('sweetalert/sweetalert.min.js');
 require('sweetalert/sweetalert.css');
@@ -193,6 +194,14 @@ var sku = function (ctx, next) {
     bus.trigger('spu.list.fetch');
 };
 
+var retailer = function (ctx, next) {
+    bus.register(retailerStore);
+    bus.register(assetStore);
+    workspace.app = riot.mount('#main', 'retailer-app', { ctx: ctx })[0];
+    workspace.appName = 'retailer';
+    ctx.params.id && bus.trigger('retailer.fetch', ctx.params.id);
+};
+
 page(function (ctx, next) {
     var qs = ctx.querystring;
     ctx.query = {};
@@ -267,7 +276,8 @@ page('/spu-type/:id?', function (ctx, next) {
     if (workspace.appName === 'spu-type') {
         workspace.app.opts = { ctx: ctx };
         workspace.app.update();
-        ctx.params.id && bus.trigger('spuType.fetch', ctx.params.id);
+        // 只有在没有获取对象数据的情况下， 才要重新获取数据
+        ctx.params.id && !workspace.app.item && bus.trigger('spuType.fetch', ctx.params.id);
     } else {
         next();
     }
@@ -276,7 +286,7 @@ page('/spu/:id?', function (ctx, next) {
     if (workspace.appName === 'spu') {
         workspace.app.opts = { ctx: ctx };
         workspace.app.update();
-        ctx.params.id && bus.trigger('spu.fetch', ctx.params.id);
+        ctx.params.id && !workspace.app.item && bus.trigger('spu.fetch', ctx.params.id);
     } else {
         next();
     }
@@ -285,7 +295,7 @@ page('/vendor/:id?', function (ctx, next) {
     if (workspace.appName === 'spu') {
         workspace.app.opts = { ctx: ctx };
         workspace.app.update();
-        ctx.params.id && bus.trigger('vendor.fetch', ctx.params.id);
+        ctx.params.id && !workspace.app.item && bus.trigger('vendor.fetch', ctx.params.id);
     } else {
         next();
     }
@@ -294,11 +304,20 @@ page('/sku/:id?', function (ctx, next) {
     if (workspace.appName === 'sku') {
         workspace.app.opts = { ctx: ctx };
         workspace.app.update();
-        ctx.params.id && bus.trigger('sku.fetch', ctx.params.id);
+        ctx.params.id && !workspace.app.item && bus.trigger('sku.fetch', ctx.params.id);
     } else {
         next();
     }
 }, resetStores, loginRequired, navBar, sku);
+page('/retailer/:id?', function (ctx, next) {
+    if (workspace.appName === 'retailer') {
+        workspace.app.opts = { ctx: ctx };
+        workspace.app.update();
+        ctx.params.id && !workspace.app.item && bus.trigger('retailer.fetch', ctx.params.id);
+    } else {
+        next();
+    }
+}, resetStores, loginRequired, navBar, retailer);
 page('/upload-sku', resetStores, loginRequired, navBar, uploadSKU);
 page('/', '/spu-list');
 
