@@ -36,7 +36,7 @@ var config = require('config');
           <i class="ui icon { enabled? 'green checkmark': 'red remove' }"></i>
         </td>
         <td>{ tel }</td>
-        <td>{ addr }</td>
+        <td>{ poi.addr }</td>
         <td>{ rating }</td>
         <td>{ moment(createTime).format('YY-MM-DD HH时') }</td>
         <td>{ spuCnt }</td>
