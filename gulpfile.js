@@ -25,7 +25,7 @@ gulp.task('watch', function () {
     gulp.watch('js/tags/*.tag.tmpl', ['render']);
 });
 
-gulp.task("webpack:build", function(callback) {
+gulp.task("webpack:build", ['compile'], function (callback) {
 	// modify some webpack config options
 	var myConfig = Object.create(webpackConfig);
 	myConfig.plugins = myConfig.plugins.concat(
@@ -47,6 +47,13 @@ gulp.task("webpack:build", function(callback) {
 		}));
 		callback();
 	});
+});
+
+gulp.task('build', [ 'webpack:build' ], function () {
+    gulp.src(['*.html', '*.png', 'robots.txt']).pipe(gulp.dest('dist'));
+    ['vendors/semantic/dist', 'js/bundle', 'js/vendor', 'img', 'css'].forEach(function (dir) {
+        gulp.src(dir + '/**/*').pipe(gulp.dest('dist/' + dir));
+    });
 });
 
 gulp.task('webpack:build-dev', function(callback) {

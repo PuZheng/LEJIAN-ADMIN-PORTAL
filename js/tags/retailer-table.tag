@@ -66,7 +66,7 @@ var config = require('config');
     self.on('retailer.list.fetched', function (data) {
       self.items = data.data.map(function (item) {
         return _.assign(item, {
-          staticMapURL: `http://restapi.amap.com/v3/staticmap?location=${ item.lng },${ item.lat }&zoom=10&size=640*640&markers=small,,A:${ item.lng },${ item.lat }&key=${ config.mapKey.web }`
+          staticMapURL: `http://restapi.amap.com/v3/staticmap?location=${ item.poi.lng },${ item.poi.lat }&zoom=10&size=640*640&markers=small,,A:${ item.poi.lng },${ item.poi.lat }&key=${ config.mapKey.web }`
         });
       });
       console.log(self.items);
